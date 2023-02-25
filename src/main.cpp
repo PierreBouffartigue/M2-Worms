@@ -5,20 +5,20 @@
 
 class Curve {
 public:
-    Curve(const int numCurves, const std::vector<float> &curveHeights)
+    Curve(const int numCurves, const float &curveHeights)
             : m_numCurves(numCurves), m_curveHeights(curveHeights) {}
 
-    sf::VertexArray generate(const int width, const int height) {
+    sf::VertexArray generate(const int width, const int height) const {
         sf::VertexArray curve(sf::LineStrip, width);
 
         for (int x = 0; x < width; x++) {
             float y = 0;
             for (int i = 0; i < m_numCurves; i++) {
                 float frequency = static_cast<float>(i + 1) * 0.5f;
-                y += m_curveHeights[i] * sin(2 * M_PI * frequency * x / static_cast<float>(width));
+                y += static_cast<float>(m_curveHeights * sin(2 * M_PI * frequency * x / static_cast<float>(width)));
             }
             curve[x].position = sf::Vector2f(static_cast<float>(x), static_cast<float>(height) / 2 + y);
-            curve[x].color = sf::Color::Black;
+            curve[x].color = sf::Color::Transparent;
         }
 
         return curve;
@@ -28,13 +28,13 @@ public:
         return m_numCurves;
     }
 
-    std::vector<float> getCurveHeights() {
+    float getCurveHeights() const {
         return m_curveHeights;
     }
 
 private:
     int m_numCurves;
-    std::vector<float> m_curveHeights;
+    float m_curveHeights;
 };
 
 class Window {
@@ -59,14 +59,11 @@ private:
     int m_width;
     int m_height;
     sf::RenderWindow m_window;
-
-    Curve curve_{rand() % 4 + 1, {static_cast<float>(rand() % 80 + 20), static_cast<float>(rand() % 80 + 20),
-                                  static_cast<float>(rand() % 80 + 20), static_cast<float>(rand() % 80 + 20)}};
-
     sf::VertexArray m_curve;
     sf::VertexArray m_greenPixels;
-
     float m_destroyRadius;
+
+    Curve curve_{rand() % 4 + 1, static_cast<float>(rand() % 80 + 20)};
 
     void handleEvents() {
         sf::Event event{};
@@ -108,8 +105,7 @@ private:
     }
 
     void regenerate() {
-        curve_ = Curve(rand() % 4 + 1, {static_cast<float>(rand() % 80 + 20), static_cast<float>(rand() % 80 + 20),
-                                        static_cast<float>(rand() % 80 + 20), static_cast<float>(rand() % 80 + 20)});
+        curve_ = Curve(rand() % 4 + 1, static_cast<float>(rand() % 80 + 20));
         m_greenPixels.clear();
         m_greenPixels.setPrimitiveType(sf::Points);
 
@@ -118,7 +114,8 @@ private:
             float y = 0;
             for (int i = 0; i < curve_.getNumCurves(); i++) {
                 float frequency = static_cast<float>(i + 1) * 0.5f;
-                y += curve_.getCurveHeights()[i] * sin(2 * M_PI * frequency * x / static_cast<float>(m_width));
+                y += static_cast<float>(curve_.getCurveHeights() *
+                                        sin(2 * M_PI * frequency * x / static_cast<float>(m_width)));
             }
             curveVertices.emplace_back(static_cast<float>(x), static_cast<float>(m_height) / 2 + y);
         }
