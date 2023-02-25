@@ -2,6 +2,18 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <random>
+
+class Utils {
+public:
+    static int GetRandomNumber(const int minNumber, const int maxNumber) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(minNumber, maxNumber);
+
+        return dis(gen);
+    }
+};
 
 class Curve {
 public:
@@ -63,7 +75,7 @@ private:
     sf::VertexArray m_greenPixels;
     float m_destroyRadius;
 
-    Curve curve_{rand() % 4 + 1, static_cast<float>(rand() % 80 + 20)};
+    Curve curve_{Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80))};
 
     void handleEvents() {
         sf::Event event{};
@@ -105,7 +117,7 @@ private:
     }
 
     void regenerate() {
-        curve_ = Curve(rand() % 4 + 1, static_cast<float>(rand() % 80 + 20));
+        curve_ = Curve(Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80)));
         m_greenPixels.clear();
         m_greenPixels.setPrimitiveType(sf::Points);
 
@@ -136,8 +148,6 @@ private:
 };
 
 int main() {
-    srand(time(nullptr));
-
     Window window(static_cast<int>(sf::VideoMode::getDesktopMode().width / 1.4),
                   static_cast<int>(sf::VideoMode::getDesktopMode().height / 1.1), "Worms map");
     window.run();
