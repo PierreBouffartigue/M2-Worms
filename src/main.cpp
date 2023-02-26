@@ -15,6 +15,53 @@ public:
     }
 };
 
+class Player {
+public:
+    Player(const sf::Vector2f position, const sf::Vector2f size, const sf::Color color) {
+        m_body = sf::RectangleShape(size);
+        m_body.setPosition(position);
+        m_body.setFillColor(color);
+        m_velocity = sf::Vector2f(0.f, 0.f);
+    }
+
+    void update(float deltaTime, sf::VertexArray &map) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            m_velocity.x = -m_speed;
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            m_velocity.x = m_speed;
+        } else {
+            m_velocity.x = 0.f;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            m_velocity.y = -m_speed;
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            m_velocity.y = m_speed;
+        } else {
+            m_velocity.y = 0.f;
+        }
+
+        for (unsigned int i = 0; i < map.getVertexCount(); i++) {
+            sf::Vector2f mapPos = map[i].position;
+            if (m_body.getGlobalBounds().intersects(sf::FloatRect(mapPos.x, mapPos.y, 1.f, 1.f))) {
+                m_velocity.x = 0.f;
+                m_velocity.y = 0.f;
+                break;
+            }
+        }
+
+        m_body.move(m_velocity * deltaTime);
+    }
+
+    void draw(sf::RenderWindow &window) {
+        window.draw(m_body);
+    }
+
+private:
+    sf::RectangleShape m_body;
+    sf::Vector2f m_velocity;
+    const float m_speed = 100.f;
+};
+
 class Curve {
 public:
     Curve(const int numCurves, const float &curveHeights)
@@ -53,13 +100,16 @@ class Window {
 public:
     Window(const int width, const int height, const std::string &title)
             : m_width(width), m_height(height),
-              m_destroyRadius(10.0f) {
+              m_destroyRadius(10.0f), m_deltaTime(0.f) {
         m_window.create(sf::VideoMode(m_width, m_height), title);
+        m_window.setFramerateLimit(60);
         regenerate();
     }
 
     void run() {
         while (m_window.isOpen()) {
+            sf::Time elapsed = m_clock.restart();
+            m_deltaTime = elapsed.asSeconds();
             handleEvents();
             update();
             render();
@@ -67,17 +117,7 @@ public:
         }
     }
 
-private:
-    int m_width;
-    int m_height;
-    sf::RenderWindow m_window;
-    sf::VertexArray m_curve;
-    sf::VertexArray m_greenPixels;
-    float m_destroyRadius;
-    bool isFlatModEnable = false;
-
-    Curve curve_{Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80))};
-
+protected:
     void handleEvents() {
         sf::Event event{};
         while (m_window.pollEvent(event)) {
@@ -103,6 +143,7 @@ private:
     }
 
     void update() {
+        player.update(m_deltaTime, m_greenPixels);
         m_curve = curve_.generate(m_width, m_height);
     }
 
@@ -110,6 +151,7 @@ private:
         m_window.clear(sf::Color::Cyan);
         m_window.draw(m_greenPixels);
         m_window.draw(m_curve);
+        player.draw(m_window);
     }
 
     void display() {
@@ -150,12 +192,24 @@ private:
             }
         }
     }
+
+private:
+    int m_width;
+    int m_height;
+    sf::RenderWindow m_window;
+    sf::VertexArray m_curve;
+    sf::VertexArray m_greenPixels;
+    float m_destroyRadius;
+    bool isFlatModEnable = false;
+    Curve curve_{Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80))};
+    Player player{{0, 0}, {20, 20}, sf::Color::Yellow};
+    sf::Clock m_clock;
+    float m_deltaTime;
 };
 
 int main() {
     Window window(static_cast<int>(sf::VideoMode::getDesktopMode().width / 1.4),
                   static_cast<int>(sf::VideoMode::getDesktopMode().height / 1.1), "Worms map");
     window.run();
-
     return 0;
 }
