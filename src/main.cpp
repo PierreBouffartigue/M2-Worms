@@ -74,6 +74,7 @@ private:
     sf::VertexArray m_curve;
     sf::VertexArray m_greenPixels;
     float m_destroyRadius;
+    bool isFlatModEnable = false;
 
     Curve curve_{Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80))};
 
@@ -82,22 +83,21 @@ private:
         while (m_window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 m_window.close();
-            else if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-
-                    for (int i = 0; i < m_greenPixels.getVertexCount(); i++) {
-                        const sf::Vertex &vertex = m_greenPixels[i];
-                        const float distance = std::hypotf(static_cast<float>(mousePos.x) - vertex.position.x,
-                                                           static_cast<float>(mousePos.y) - vertex.position.y);
-                        if (distance < m_destroyRadius) {
-                            m_greenPixels[i].color = sf::Color::Transparent;
-                        }
+            else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+                for (int i = 0; i < m_greenPixels.getVertexCount(); i++) {
+                    const sf::Vertex &vertex = m_greenPixels[i];
+                    const float distance = std::hypotf(static_cast<float>(mousePos.x) - vertex.position.x,
+                                                       static_cast<float>(mousePos.y) - vertex.position.y);
+                    if (distance < m_destroyRadius) {
+                        m_greenPixels[i].color = sf::Color::Transparent;
                     }
                 }
-
             } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R) {
                 regenerate();
+            } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F) {
+                isFlatModEnable = !isFlatModEnable;
+                std::cout << "Flat mod : " + std::to_string(isFlatModEnable) << std::endl;
             }
         }
     }
@@ -117,7 +117,12 @@ private:
     }
 
     void regenerate() {
-        curve_ = Curve(Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80)));
+        if (isFlatModEnable) {
+            curve_ = Curve(1, 10.f);
+        } else {
+            curve_ = Curve(Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80)));
+        }
+
         m_greenPixels.clear();
         m_greenPixels.setPrimitiveType(sf::Points);
 
