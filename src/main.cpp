@@ -40,16 +40,43 @@ public:
             m_velocity.y = 0.f;
         }
 
+        sf::FloatRect playerBody = m_body.getGlobalBounds();
+        sf::Vector2f playerMove = m_velocity * deltaTime;
+
+        sf::FloatRect playerBodyBounds(
+                std::min(playerBody.left, playerBody.left + playerMove.x),
+                std::min(playerBody.top, playerBody.top + playerMove.y),
+                std::abs(playerMove.x) + playerBody.width,
+                std::abs(playerMove.y) + playerBody.height);
+
+        bool collision = false;
+
         for (unsigned int i = 0; i < map.getVertexCount(); i++) {
             sf::Vector2f mapPos = map[i].position;
-            if (m_body.getGlobalBounds().intersects(sf::FloatRect(mapPos.x, mapPos.y, 1.f, 1.f))) {
-                m_velocity.x = 0.f;
-                m_velocity.y = 0.f;
-                break;
+            sf::FloatRect mapBounds(mapPos.x, mapPos.y, 1.f, 1.f);
+            if (playerBodyBounds.intersects(mapBounds)) {
+                sf::FloatRect intersection;
+                if (playerBodyBounds.intersects(mapBounds, intersection)) {
+                    if (std::abs(intersection.width) < std::abs(intersection.height)) {
+                        playerMove.x = intersection.left - playerBody.left;
+                    } else {
+                        playerMove.y = intersection.top - playerBody.top;
+                    }
+                }
+                collision = true;
             }
         }
 
-        m_body.move(m_velocity * deltaTime);
+        if (!collision) {
+            m_body.move(playerMove);
+        } else {
+            if (playerMove.x != 0.f) {
+                m_velocity.x = 0.f;
+            }
+            else if (playerMove.y != 0.f) {
+                m_velocity.y = 0.f;
+            }
+        }
     }
 
     void draw(sf::RenderWindow &window) {
@@ -116,25 +143,26 @@ public:
 
         m_groundPixels.clear();
         m_groundPixels.setPrimitiveType(sf::Points);
+        const sf::Vector2u windowSize = m_window.getSize();
 
         std::vector<sf::Vector2f> curveVertices;
-        for (int x = 0; x < m_window.getSize().x; x++) {
+        for (int x = 0; x < windowSize.x; x++) {
             float y = 0;
             for (int i = 0; i < curve_.getNumCurves(); i++) {
                 float frequency = static_cast<float>(i + 1) * 0.5f;
                 y += static_cast<float>(curve_.getCurveHeights() *
-                                        sin(2 * M_PI * frequency * x / static_cast<float>(m_window.getSize().x)));
+                                        sin(2 * M_PI * frequency * x / windowSize.x));
             }
-            curveVertices.emplace_back(static_cast<float>(x), static_cast<float>(m_window.getSize().y) / 2 + y);
+            curveVertices.emplace_back(static_cast<float>(x), static_cast<float>(windowSize.y) / 2 + y);
         }
 
         bool foundCurveStart = false;
         for (auto &curveVertex: curveVertices) {
-            if (!foundCurveStart && curveVertex.y > static_cast<float>(m_window.getSize().y) / 2) {
+            if (!foundCurveStart && curveVertex.y > static_cast<float>(windowSize.y) / 2) {
                 foundCurveStart = true;
             }
             if (foundCurveStart) {
-                for (int y = static_cast<int>(curveVertex.y); y < m_window.getSize().y; y++) {
+                for (int y = static_cast<int>(curveVertex.y); y < windowSize.y; y++) {
                     m_groundPixels.append(
                             sf::Vertex(sf::Vector2f(curveVertex.x, static_cast<float>(y)), sf::Color::Green));
                 }
@@ -151,6 +179,7 @@ public:
                                                    static_cast<float>(mousePos.y) - vertex.position.y);
                 if (distance < m_destroyRadius) {
                     m_groundPixels[i].color = sf::Color::Transparent;
+                    m_groundPixels[i].position = sf::Vector2f(-1000.f, -1000.f);
                 }
             }
         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
@@ -175,7 +204,7 @@ public:
     }
 
 private:
-    bool isFlatModEnable = false;
+    std::uint8_t isFlatModEnable = false;
     float m_destroyRadius;
     sf::VertexArray m_curve;
     sf::VertexArray m_groundPixels;
