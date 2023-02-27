@@ -24,7 +24,9 @@ public:
         m_velocity = sf::Vector2f(0.f, 0.f);
     }
 
-    void update(float deltaTime, sf::VertexArray &map) {
+    ~Player() = default;
+
+    void handleEvents(float deltaTime, sf::VertexArray map) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
             m_velocity.x = -m_speed;
         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
@@ -67,6 +69,8 @@ public:
     Curve(const int numCurves, const float &curveHeights)
             : m_numCurves(numCurves), m_curveHeights(curveHeights) {}
 
+    ~Curve() = default;
+
     sf::VertexArray generate(const int width, const int height) const {
         sf::VertexArray curve(sf::LineStrip, width);
 
@@ -96,14 +100,94 @@ private:
     float m_curveHeights;
 };
 
+class Ground {
+public:
+    Ground() : m_destroyRadius(10.0f) {};
+
+    ~Ground() = default;
+
+    void regenerate(sf::RenderWindow &m_window) {
+        if (isFlatModEnable) {
+            curve_ = Curve(1, 10.f);
+        } else {
+            curve_ = Curve(Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80)));
+        }
+
+        m_greenPixels.clear();
+        m_greenPixels.setPrimitiveType(sf::Points);
+
+        std::vector<sf::Vector2f> curveVertices;
+        for (int x = 0; x < m_window.getSize().x; x++) {
+            float y = 0;
+            for (int i = 0; i < curve_.getNumCurves(); i++) {
+                float frequency = static_cast<float>(i + 1) * 0.5f;
+                y += static_cast<float>(curve_.getCurveHeights() *
+                                        sin(2 * M_PI * frequency * x / static_cast<float>(m_window.getSize().x)));
+            }
+            curveVertices.emplace_back(static_cast<float>(x), static_cast<float>(m_window.getSize().y) / 2 + y);
+        }
+
+        bool foundCurveStart = false;
+        for (auto &curveVertex: curveVertices) {
+            if (!foundCurveStart && curveVertex.y > static_cast<float>(m_window.getSize().y) / 2) {
+                foundCurveStart = true;
+            }
+            if (foundCurveStart) {
+                for (int y = static_cast<int>(curveVertex.y); y < m_window.getSize().y; y++) {
+                    m_greenPixels.append(
+                            sf::Vertex(sf::Vector2f(curveVertex.x, static_cast<float>(y)), sf::Color::Green));
+                }
+            }
+        }
+    }
+
+    void handleEvents(sf::RenderWindow &m_window) {
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+            for (int i = 0; i < m_greenPixels.getVertexCount(); i++) {
+                const sf::Vertex &vertex = m_greenPixels[i];
+                const float distance = std::hypotf(static_cast<float>(mousePos.x) - vertex.position.x,
+                                                   static_cast<float>(mousePos.y) - vertex.position.y);
+                if (distance < m_destroyRadius) {
+                    m_greenPixels[i].color = sf::Color::Transparent;
+                }
+            }
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+            regenerate(m_window);
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
+            isFlatModEnable = !isFlatModEnable;
+            std::cout << "Flat mod : " + std::to_string(isFlatModEnable) << std::endl;
+        }
+    }
+
+    void draw(sf::RenderWindow &m_window) {
+        m_window.draw(m_curve);
+        m_window.draw(m_greenPixels);
+    }
+
+    void update(sf::RenderWindow &m_window) {
+        m_curve = curve_.generate(static_cast<int>(m_window.getSize().x), static_cast<int>(m_window.getSize().y));
+    }
+
+    sf::VertexArray GetGreenPixels() {
+        return m_greenPixels;
+    }
+
+private:
+    bool isFlatModEnable = false;
+    float m_destroyRadius;
+    sf::VertexArray m_curve;
+    sf::VertexArray m_greenPixels;
+    Curve curve_{Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80))};
+};
+
 class Window {
 public:
     Window(const int width, const int height, const std::string &title)
-            : m_width(width), m_height(height),
-              m_destroyRadius(10.0f), m_deltaTime(0.f) {
+            : m_width(width), m_height(height), m_deltaTime(0.f) {
         m_window.create(sf::VideoMode(m_width, m_height), title);
         m_window.setFramerateLimit(60);
-        regenerate();
+        ground.regenerate(m_window);
     }
 
     void run() {
@@ -120,37 +204,21 @@ public:
 protected:
     void handleEvents() {
         sf::Event event{};
+        player.handleEvents(m_deltaTime, ground.GetGreenPixels());
+        ground.handleEvents(m_window);
         while (m_window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 m_window.close();
-            else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-                const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-                for (int i = 0; i < m_greenPixels.getVertexCount(); i++) {
-                    const sf::Vertex &vertex = m_greenPixels[i];
-                    const float distance = std::hypotf(static_cast<float>(mousePos.x) - vertex.position.x,
-                                                       static_cast<float>(mousePos.y) - vertex.position.y);
-                    if (distance < m_destroyRadius) {
-                        m_greenPixels[i].color = sf::Color::Transparent;
-                    }
-                }
-            } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R) {
-                regenerate();
-            } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F) {
-                isFlatModEnable = !isFlatModEnable;
-                std::cout << "Flat mod : " + std::to_string(isFlatModEnable) << std::endl;
-            }
         }
     }
 
     void update() {
-        player.update(m_deltaTime, m_greenPixels);
-        m_curve = curve_.generate(m_width, m_height);
+        ground.update(m_window);
     }
 
     void render() {
         m_window.clear(sf::Color::Cyan);
-        m_window.draw(m_greenPixels);
-        m_window.draw(m_curve);
+        ground.draw(m_window);
         player.draw(m_window);
     }
 
@@ -158,50 +226,11 @@ protected:
         m_window.display();
     }
 
-    void regenerate() {
-        if (isFlatModEnable) {
-            curve_ = Curve(1, 10.f);
-        } else {
-            curve_ = Curve(Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80)));
-        }
-
-        m_greenPixels.clear();
-        m_greenPixels.setPrimitiveType(sf::Points);
-
-        std::vector<sf::Vector2f> curveVertices;
-        for (int x = 0; x < m_width; x++) {
-            float y = 0;
-            for (int i = 0; i < curve_.getNumCurves(); i++) {
-                float frequency = static_cast<float>(i + 1) * 0.5f;
-                y += static_cast<float>(curve_.getCurveHeights() *
-                                        sin(2 * M_PI * frequency * x / static_cast<float>(m_width)));
-            }
-            curveVertices.emplace_back(static_cast<float>(x), static_cast<float>(m_height) / 2 + y);
-        }
-
-        bool foundCurveStart = false;
-        for (auto &curveVertice: curveVertices) {
-            if (!foundCurveStart && curveVertice.y > static_cast<float>(m_height) / 2) {
-                foundCurveStart = true;
-            }
-            if (foundCurveStart) {
-                for (int y = static_cast<int>(curveVertice.y); y < m_height; y++) {
-                    m_greenPixels.append(
-                            sf::Vertex(sf::Vector2f(curveVertice.x, static_cast<float>(y)), sf::Color::Green));
-                }
-            }
-        }
-    }
-
 private:
     int m_width;
     int m_height;
     sf::RenderWindow m_window;
-    sf::VertexArray m_curve;
-    sf::VertexArray m_greenPixels;
-    float m_destroyRadius;
-    bool isFlatModEnable = false;
-    Curve curve_{Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80))};
+    Ground ground;
     Player player{{0, 0}, {20, 20}, sf::Color::Yellow};
     sf::Clock m_clock;
     float m_deltaTime;
