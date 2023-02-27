@@ -49,7 +49,7 @@ public:
                 std::abs(playerMove.x) + playerBody.width,
                 std::abs(playerMove.y) + playerBody.height);
 
-        bool collision = false;
+        std::uint8_t collision = false;
 
         for (unsigned int i = 0; i < map.getVertexCount(); i++) {
             sf::Vector2f mapPos = map[i].position;
@@ -156,7 +156,7 @@ public:
             curveVertices.emplace_back(static_cast<float>(x), static_cast<float>(windowSize.y) / 2 + y);
         }
 
-        bool foundCurveStart = false;
+        std::uint8_t foundCurveStart = false;
         for (auto &curveVertex: curveVertices) {
             if (!foundCurveStart && curveVertex.y > static_cast<float>(windowSize.y) / 2) {
                 foundCurveStart = true;
@@ -179,7 +179,7 @@ public:
                                                    static_cast<float>(mousePos.y) - vertex.position.y);
                 if (distance < m_destroyRadius) {
                     m_groundPixels[i].color = sf::Color::Transparent;
-                    m_groundPixels[i].position = sf::Vector2f(-1000.f, -1000.f);
+                    m_groundPixels[i].position = sf::Vector2f(-10000.f, -10000.f);
                 }
             }
         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
