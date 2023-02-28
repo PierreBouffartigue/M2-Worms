@@ -3,15 +3,39 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <chrono>
 
 class Utils {
 public:
+    Utils() = default;
+
+    ~Utils() = default;
+
     static int GetRandomNumber(const int minNumber, const int maxNumber) {
         static std::mt19937 gen(std::random_device{}());
         std::uniform_int_distribution<> dis(minNumber, maxNumber);
 
         return dis(gen);
     }
+};
+
+class Profiling {
+    Profiling() = default;
+
+    ~Profiling() = default;
+
+    void beginProfiling() {
+        m_chronoProfiling = std::chrono::high_resolution_clock::now();
+    }
+
+    void endProfiling() {
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - m_chronoProfiling;
+        std::cout << "Function execution time: " << elapsed.count() << " seconds\n";
+    }
+
+private:
+    std::chrono::high_resolution_clock::time_point m_chronoProfiling;
 };
 
 class Player {
@@ -72,8 +96,7 @@ public:
         } else {
             if (playerMove.x != 0.f) {
                 m_velocity.x = 0.f;
-            }
-            else if (playerMove.y != 0.f) {
+            } else if (playerMove.y != 0.f) {
                 m_velocity.y = 0.f;
             }
         }
@@ -239,6 +262,10 @@ protected:
         while (m_window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 m_window.close();
+            else if (event.type == sf::Event::Resized) {
+                //TODO : Voir pour mieux gérer la redimension ou pour la bloquer
+                std::cout << "Resize" << std::endl;
+            }
         }
     }
 
