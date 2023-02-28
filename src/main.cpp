@@ -4,20 +4,7 @@
 #include <vector>
 #include <random>
 #include <chrono>
-
-class Utils {
-public:
-    Utils() = default;
-
-    ~Utils() = default;
-
-    static int GetRandomNumber(const int minNumber, const int maxNumber) {
-        static std::mt19937 gen(std::random_device{}());
-        std::uniform_int_distribution<> dis(minNumber, maxNumber);
-
-        return dis(gen);
-    }
-};
+#include <fstream>
 
 class Profiling {
     Profiling() = default;
@@ -106,10 +93,57 @@ public:
         window.draw(m_body);
     }
 
+    sf::RectangleShape getPlayerBody() {
+        return m_body;
+    }
+
 private:
     sf::RectangleShape m_body;
     sf::Vector2f m_velocity;
     const float m_speed = 100.f;
+};
+
+class Utils {
+public:
+    Utils() = default;
+
+    ~Utils() = default;
+
+    static int getRandomNumber(const int minNumber, const int maxNumber) {
+        static std::mt19937 gen(std::random_device{}());
+        std::uniform_int_distribution<> dis(minNumber, maxNumber);
+
+        return dis(gen);
+    }
+
+    static void saveGame(const sf::VertexArray &pixels, Player &firstPlayer, Player &secondPlayer) {
+        std::ofstream outputFile("save.txt");
+        if (!outputFile.is_open()) {
+            std::cerr << "Error opening save file" << std::endl;
+            return;
+        }
+
+        outputFile << "GroundPixels\n";
+        for (unsigned int i = 0; i < pixels.getVertexCount(); i++) {
+            const sf::Vector2f &pos = pixels[i].position;
+            outputFile << pos.x << "," << pos.y << "\n";
+        }
+
+        outputFile << "FirstPlayer\n";
+        const sf::Vector2f &firstPlayerPos = firstPlayer.getPlayerBody().getPosition();
+        outputFile << firstPlayerPos.x << "," << firstPlayerPos.y << "\n";
+
+        outputFile << "SecondPlayer\n";
+        const sf::Vector2f &secondPlayerPos = secondPlayer.getPlayerBody().getPosition();
+        outputFile << secondPlayerPos.x << "," << secondPlayerPos.y << "\n";
+
+        outputFile.close();
+        std::cout << "Saved game" << std::endl;
+    }
+
+    static void loadGame() {
+        std::cout << "Load game - WIP" << std::endl;
+    }
 };
 
 class Curve {
@@ -161,7 +195,7 @@ public:
         if (isFlatModEnable) {
             curve_ = Curve(1, 10.f);
         } else {
-            curve_ = Curve(Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80)));
+            curve_ = Curve(Utils::getRandomNumber(1, 4), static_cast<float>(Utils::getRandomNumber(20, 80)));
         }
 
         m_groundPixels.clear();
@@ -222,7 +256,7 @@ public:
         m_curve = curve_.generate(static_cast<int>(m_window.getSize().x), static_cast<int>(m_window.getSize().y));
     }
 
-    sf::VertexArray GetGreenPixels() {
+    sf::VertexArray getGroundPixels() {
         return m_groundPixels;
     }
 
@@ -231,7 +265,7 @@ private:
     float m_destroyRadius;
     sf::VertexArray m_curve;
     sf::VertexArray m_groundPixels;
-    Curve curve_{Utils::GetRandomNumber(1, 4), static_cast<float>(Utils::GetRandomNumber(20, 80))};
+    Curve curve_{Utils::getRandomNumber(1, 4), static_cast<float>(Utils::getRandomNumber(20, 80))};
 };
 
 class Window {
@@ -257,7 +291,7 @@ public:
 protected:
     void handleEvents() {
         sf::Event event{};
-        player.handleEvents(m_deltaTime, m_ground->GetGreenPixels());
+        player.handleEvents(m_deltaTime, m_ground->getGroundPixels());
         m_ground->handleEvents(m_window);
         while (m_window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
@@ -265,6 +299,8 @@ protected:
             else if (event.type == sf::Event::Resized) {
                 //TODO : Voir pour mieux gérer la redimension ou pour la bloquer
                 std::cout << "Resize" << std::endl;
+            } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+                Utils::saveGame(m_ground->getGroundPixels(), player, player); // TODO : Ajouter second joueur ici
             }
         }
     }
