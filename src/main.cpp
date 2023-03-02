@@ -6,6 +6,8 @@
 #include <chrono>
 #include <fstream>
 
+#include "Projection.h"
+
 class Profiling {
     Profiling() = default;
 
@@ -35,7 +37,7 @@ public:
 
     ~Player() = default;
 
-    void handleEvents(const float deltaTime, const sf::VertexArray &map) {
+    void handleEvents(const float deltaTime, const sf::VertexArray &map, sf::RenderWindow& m_window) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
             m_velocity.x = -m_speed;
         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
@@ -49,6 +51,16 @@ public:
             m_velocity.y = m_speed;
         } else {
             m_velocity.y = 0.f;
+        }
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
+            const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+            Vector2D vectorDir = Vector2D(mousePos.x - m_body.getPosition().x, mousePos.y - m_body.getPosition().y);
+            Projectile* NewProjectile = new Projectile(ProjectionData(Vector2D(m_body.getPosition().x, m_body.getPosition().y), vectorDir * 2.500f, Vector2D(0.f, 98.1f)), sf::Vector2(10.f, 10.f));
+            m_listOfProjectile.push_back(NewProjectile);
+
+            std::cout << "Fire ! --> " << mousePos.x << " : " << mousePos.y << std::endl;
         }
 
         sf::FloatRect playerBody = m_body.getGlobalBounds();
@@ -87,10 +99,22 @@ public:
                 m_velocity.y = 0.f;
             }
         }
+
+        for (int i = 0; i < m_listOfProjectile.size(); ++i)
+        {
+            if (m_listOfProjectile[i] != nullptr)
+            m_listOfProjectile[i]->UpdateAndMove(deltaTime);
+        }
     }
 
     void draw(sf::RenderWindow &window) {
         window.draw(m_body);
+
+        for(int i = 0; i < m_listOfProjectile.size(); ++i)
+        {
+            if(m_listOfProjectile[i] != nullptr)
+            window.draw(m_listOfProjectile[i]->getShape());
+        }
     }
 
     sf::RectangleShape getPlayerBody() {
@@ -101,6 +125,8 @@ private:
     sf::RectangleShape m_body;
     sf::Vector2f m_velocity;
     const float m_speed = 100.f;
+
+    std::vector<Projectile*> m_listOfProjectile;
 };
 
 class Utils {
@@ -156,7 +182,9 @@ public:
     sf::VertexArray generate(const int width, const int height) const {
         sf::VertexArray curve(sf::LineStrip, width);
 
-        float factor = static_cast<float>(2 * M_PI) / static_cast<float>(width);
+        //float factor = static_cast<float>(2 * M_PI) / static_cast<float>(width);
+        float factor = static_cast<float>(2 * 3.14159265358979323846) / static_cast<float>(width);
+
         float heightFactor = static_cast<float>(height) / 2;
 
         for (int x = 0; x < width; x++) {
@@ -207,8 +235,10 @@ public:
             float y = 0;
             for (int i = 0; i < curve_.getNumCurves(); i++) {
                 float frequency = static_cast<float>(i + 1) * 0.5f;
+                //y += static_cast<float>(curve_.getCurveHeights() *
+                //                        sin(2 * M_PI * frequency * x / windowSize.x));
                 y += static_cast<float>(curve_.getCurveHeights() *
-                                        sin(2 * M_PI * frequency * x / windowSize.x));
+                    sin(2 * 3.14159265358979323846 * frequency * x / windowSize.x));
             }
             curveVertices.emplace_back(static_cast<float>(x), static_cast<float>(windowSize.y) / 2 + y);
         }
@@ -291,7 +321,7 @@ public:
 protected:
     void handleEvents() {
         sf::Event event{};
-        player.handleEvents(m_deltaTime, m_ground->getGroundPixels());
+        player.handleEvents(m_deltaTime, m_ground->getGroundPixels(), m_window);
         m_ground->handleEvents(m_window);
         while (m_window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)

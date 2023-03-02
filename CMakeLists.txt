@@ -4,7 +4,7 @@ project(worms)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(worms
-        src/main.cpp)
+        src/main.cpp "src/Projection.h")
 
 # Remove line 11 - 12 if VCPKG is used
 # SFML set on the racine of the project but you can change path
