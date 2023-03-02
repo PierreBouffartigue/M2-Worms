@@ -54,13 +54,18 @@ public:
         }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
             const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-            Vector2D vectorDir = Vector2D(mousePos.x - m_body.getPosition().x, mousePos.y - m_body.getPosition().y);
-            Projectile* NewProjectile = new Projectile(ProjectionData(Vector2D(m_body.getPosition().x, m_body.getPosition().y), vectorDir * 2.500f, Vector2D(0.f, 98.1f)), sf::Vector2(10.f, 10.f));
-            m_listOfProjectile.push_back(NewProjectile);
 
-            std::cout << "Fire ! --> " << mousePos.x << " : " << mousePos.y << std::endl;
+            Vector2D vectorDir = Vector2D(mousePos.x - m_body.getPosition().x, mousePos.y - m_body.getPosition().y);
+            const float force = 2.0f;
+
+            Vector2D gravity = Vector2D(0.0f, 981.0f);
+            Vector2D wind = Vector2D(-100.0f, 0);
+            Vector2D accVector = gravity + wind;
+
+            // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
+            Projectile* NewProjectile = new Projectile(ProjectionData(Vector2D(m_body.getPosition().x, m_body.getPosition().y), vectorDir * force, accVector), sf::Vector2(10.f, 10.f), 0.5f);
+            m_listOfProjectile.push_back(NewProjectile);
         }
 
         sf::FloatRect playerBody = m_body.getGlobalBounds();

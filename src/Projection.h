@@ -10,6 +10,14 @@ struct Vector2D
         _y(y)
     {}
 
+    Vector2D& operator + (Vector2D val)
+    {
+        _x += val._x;
+        _y += val._y;
+
+        return *this;
+    }
+
     Vector2D& operator * (float val)
     {
         _x *= val;
@@ -65,9 +73,10 @@ private:
 class Projectile
 {
 public:
-    Projectile(ProjectionData data, const sf::Vector2f size) :
+    Projectile(ProjectionData data, const sf::Vector2f size, const float lifeTime = 3.0f) :
         m_projData(data),
-        m_shape(size)
+        m_shape(size),
+        m_lifeTime(lifeTime)
     {
         m_shape.setPosition(sf::Vector2f(data.getPosition()._x, data.getPosition()._y));
         m_shape.setFillColor(sf::Color::Red);
@@ -82,6 +91,12 @@ public:
 
     void UpdateAndMove(const float deltaTime)
     {
+        m_lifeTime -= deltaTime;
+        if (m_lifeTime < 0)
+        {
+            //delete this;
+        }
+
         m_projData.Update(deltaTime);
         m_shape.setPosition(sf::Vector2(m_projData.getPosition()._x, m_projData.getPosition()._y));
     }
@@ -89,6 +104,7 @@ public:
 private:
     ProjectionData m_projData;
     sf::RectangleShape m_shape;
+    float m_lifeTime;
 };
 
 // My Things End
