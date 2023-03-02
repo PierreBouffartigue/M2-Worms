@@ -17,7 +17,8 @@ public:
     void update() override;
     void render() override;
 
-    void addButton(const sf::String &Text, const IButton::EventType& OnClick);
+    void addButton(const sf::String &Text, const IButton::EventType& OnClick, sf::Vector2f position);
+
 private:
     sf::Font* m_font;
     std::vector<IButton*> m_buttons;

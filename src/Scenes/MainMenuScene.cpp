@@ -1,9 +1,12 @@
+#include <iostream>
 #include "MainMenuScene.h"
 #include "../UI/Button.h"
 
 MainMenuScene::MainMenuScene(Game& game) : IScene(game) {
     loadAssets();
-    addButton("Quit", [this](auto && Btn) { m_game.closeGame(); });
+
+    //addButton("Play", [this](auto && btn) { m_game.loadScene(EScenes::PlayGame); }, sf::Vector2f(30, 10));
+    addButton("Quit", [this](auto && btn) { m_game.closeGame(); }, sf::Vector2f(30, 100));
 }
 
 MainMenuScene::~MainMenuScene() {
@@ -49,10 +52,10 @@ void MainMenuScene::render() {
     }
 }
 
-void MainMenuScene::addButton(const sf::String &Text, const IButton::EventType& OnClick) {
-    auto newButton = new Button(Text, *m_font, 100.f, 40.f, 30.f);
+void MainMenuScene::addButton(const sf::String &Text, const IButton::EventType& OnClick, sf::Vector2f position) {
+    auto newButton = new Button(Text, *m_font, 100.f, 55.f, 30.f);
     m_buttons.push_back(newButton);
-    newButton->setPosition(30, 10);
+    newButton->setPosition(position.x, position.y);
 
     if (nullptr != OnClick)
         newButton->setOnClick(OnClick);

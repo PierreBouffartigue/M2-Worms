@@ -1,6 +1,6 @@
 #include "Button.h"
 
-Button::Button(const sf::String& name, const sf::Font& font, float width, float height, unsigned int characterSize) : m_name(sf::Text(name, font, characterSize)), m_border(sf::RectangleShape(sf::Vector2f(width, height))), m_inactiveColor(sf::Color::White), m_hoverColor(sf::Color::Cyan), m_activeColor(sf::Color::Yellow) {
+Button::Button(const sf::String& name, const sf::Font& font, float width, float height, unsigned int characterSize) : m_name(sf::Text(name, font, characterSize)), m_border(sf::RectangleShape(sf::Vector2f(width, height))), m_inactiveColor(sf::Color::White), m_hoverColor(sf::Color::Cyan), m_activeColor(sf::Color::Magenta) {
     m_border.setFillColor(sf::Color::Transparent);
     m_border.setOutlineThickness(-m_borderThickness);
     ToggleActive(m_isActive);

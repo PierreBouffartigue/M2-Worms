@@ -6,7 +6,12 @@ set(CMAKE_CXX_STANDARD 23)
 add_executable(worms
         src/main.cpp
         GameEngine/IGame.h GameEngine/Scenes/IScene.h GameEngine/UI/IButton.cpp GameEngine/UI/IButton.h
-        src/UI/Button.cpp src/UI/Button.h src/Game.cpp src/Game.h src/Scenes/EScenes.h src/Scenes/MainMenuScene.cpp src/Scenes/MainMenuScene.h src/Inputs/MouseEvents.cpp src/Inputs/MouseEvents.h)
+        src/UI/Button.cpp src/UI/Button.h
+        src/Game.cpp src/Game.h
+        src/Scenes/EScenes.h src/Scenes/MainMenuScene.cpp src/Scenes/MainMenuScene.h src/Scenes/PlayGameScene.cpp src/Scenes/PlayGameScene.h
+        src/Inputs/MouseEvents.cpp src/Inputs/MouseEvents.h src/Utils/Profiling.cpp src/Utils/Profiling.h src/Utils/Utils.cpp src/Utils/Utils.h src/Utils/Math.h
+        src/GameObjects/Player.cpp src/GameObjects/Player.h src/GameObjects/Projectile.cpp src/GameObjects/Projectile.h
+        src/Ground/Curve.cpp src/Ground/Curve.h src/Ground/Ground.cpp src/Ground/Ground.h)
 
 # Remove line 11 - 12 if VCPKG is used
 # SFML set on the racine of the project but you can change path

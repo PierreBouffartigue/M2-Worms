@@ -38,14 +38,23 @@ public:
 
 protected:
     void processInput() {
+        if (nullptr == m_currentScene)
+            return;
+
         m_currentScene->processInput();
     }
 
     void update(const float& deltaTime) {
+        if (nullptr == m_currentScene)
+            return;
+
         m_currentScene->update();
     }
 
     void render() {
+        if (nullptr == m_currentScene)
+            return;
+
         m_currentScene->render();
 
         m_window.display();

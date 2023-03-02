@@ -15,8 +15,6 @@ void MouseEvents::handleOnMouseLeftClick(sf::Event &event, std::vector<IButton *
             button->click();
         }
     }
-
-
 }
 
 void MouseEvents::setMousePressed(sf::Event &Event) {
