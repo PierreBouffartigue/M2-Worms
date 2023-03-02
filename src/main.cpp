@@ -33,11 +33,15 @@ public:
             : m_body(size), m_velocity(sf::Vector2f(0.f, 0.f)), m_speed(100.f) {
         m_body.setPosition(position);
         m_body.setFillColor(color);
+        //TODO : Texture dans loader
+        if (m_texture.loadFromFile("../assets/textures/1.png")) {
+            m_body.setTexture(&m_texture);
+        }
     }
 
     ~Player() = default;
 
-    void handleEvents(const float deltaTime, const sf::VertexArray &map, sf::RenderWindow &m_window) {
+    void handleEvents(const float deltaTime, sf::VertexArray map, sf::RenderWindow &m_window) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
             m_velocity.x = -m_speed;
         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
@@ -83,13 +87,13 @@ public:
 
         if (playerBody.left + playerMove.x < 0) {
             playerMove.x = -playerBody.left;
-        } else if (playerBody.left + playerBody.width + playerMove.x > m_window.getSize().x) {
-            playerMove.x = m_window.getSize().x - playerBody.left - playerBody.width;
+        } else if (playerBody.left + playerBody.width + playerMove.x > static_cast<float>(m_window.getSize().x)) {
+            playerMove.x = static_cast<float>(m_window.getSize().x) - playerBody.left - playerBody.width;
         }
         if (playerBody.top + playerMove.y < 0) {
             playerMove.y = -playerBody.top;
-        } else if (playerBody.top + playerBody.height + playerMove.y > m_window.getSize().y) {
-            playerMove.y = m_window.getSize().y - playerBody.top - playerBody.height;
+        } else if (playerBody.top + playerBody.height + playerMove.y > static_cast<float>(m_window.getSize().y)) {
+            playerMove.y = static_cast<float>(m_window.getSize().y) - playerBody.top - playerBody.height;
         }
 
         sf::FloatRect playerBodyBounds(
@@ -127,6 +131,17 @@ public:
         }
     }
 
+    void takeDamage(const float damage) {
+        m_health -= damage;
+        if (m_health <= 0) {
+            //TODO : Joueur mort
+        }
+    }
+
+    void heal(const float heal) {
+        m_health += heal;
+    }
+
     void draw(sf::RenderWindow &window) {
         window.draw(m_body);
 
@@ -144,7 +159,8 @@ private:
     sf::RectangleShape m_body;
     sf::Vector2f m_velocity;
     const float m_speed = 100.f;
-
+    float m_health = 100.f;
+    sf::Texture m_texture;
     std::vector<Projectile *> m_listOfProjectile;
 };
 
@@ -322,6 +338,10 @@ public:
         m_window.create(sf::VideoMode(m_width, m_height), title);
         m_window.setFramerateLimit(60);
         m_ground->regenerate(m_window);
+        // TODO load texture dans loader
+        if (!m_backgroundTexture.loadFromFile("../assets/textures/background.png")) {
+            std::cerr << "Erreur lors du chargement de l'image de fond" << std::endl;
+        }
     }
 
     void run() {
@@ -338,13 +358,22 @@ public:
 protected:
     void handleEvents() {
         sf::Event event{};
-        player.handleEvents(m_deltaTime, m_ground->getGroundPixels(), m_window);
+        if (isFirstPlayerTurn) {
+            firstPlayer.handleEvents(m_deltaTime, m_ground->getGroundPixels(), m_window);
+        } else {
+            secondPlayer.handleEvents(m_deltaTime, m_ground->getGroundPixels(), m_window);
+        }
+
         m_ground->handleEvents(m_window);
         while (m_window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 m_window.close();
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-                Utils::saveGame(m_ground->getGroundPixels(), player, player); // TODO : Ajouter second joueur ici
+                Utils::saveGame(m_ground->getGroundPixels(), firstPlayer,
+                                secondPlayer);
+            } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::T)) {
+                isFirstPlayerTurn = !isFirstPlayerTurn;
+                std::cout << "Player turn: " + std::to_string(isFirstPlayerTurn + 1) << std::endl;
             }
         }
     }
@@ -355,8 +384,15 @@ protected:
 
     void render() {
         m_window.clear(sf::Color::Cyan);
+
+        sf::Sprite backgroundSprite(m_backgroundTexture);
+        backgroundSprite.setScale(static_cast<float>(m_width) / static_cast<float>(m_backgroundTexture.getSize().x),
+                                  static_cast<float>(m_height) / static_cast<float>(m_backgroundTexture.getSize().y));
+        m_window.draw(backgroundSprite);
+
         m_ground->draw(m_window);
-        player.draw(m_window);
+        firstPlayer.draw(m_window);
+        secondPlayer.draw(m_window);
     }
 
     void display() {
@@ -368,9 +404,12 @@ private:
     const int m_height;
     sf::RenderWindow m_window;
     std::unique_ptr<Ground> m_ground;
-    Player player{{0, 0}, {20, 20}, sf::Color::Yellow};
+    Player firstPlayer{{0, 0}, {20, 20}, sf::Color::Yellow};
+    Player secondPlayer{{0, 0}, {20, 20}, sf::Color::Magenta};
+    std::uint8_t isFirstPlayerTurn{};
     sf::Clock m_clock;
     float m_deltaTime;
+    sf::Texture m_backgroundTexture;
 };
 
 int main() {
