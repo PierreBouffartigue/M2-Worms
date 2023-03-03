@@ -80,7 +80,7 @@ public:
     void UpdateAndMove(const float deltaTime, sf::VertexArray &map) {
         m_lifeTime -= deltaTime;
         if (m_lifeTime < 0) {
-            //delete this;
+            m_isDeleted= true;
         }
 
         m_projData.Update(deltaTime);
@@ -124,7 +124,7 @@ public:
                 float distance = std::hypotf(m_shape.getPosition().x - vertex.position.x,
                                              m_shape.getPosition().y - vertex.position.y);
                 if (distance < 10.f) {
-                    std::cout << "Destruction" << std::endl;
+                    m_isDeleted= true;
                     //map[i].color = sf::Color::Transparent;
                     //map[i].position = sf::Vector2f(-10000.f, -10000.f);
                 }
@@ -132,10 +132,15 @@ public:
         }
     }
 
+    bool getIsDeleted() const{
+        return m_isDeleted;
+    }
+
 private:
     ProjectionData m_projData;
     sf::RectangleShape m_shape;
     float m_lifeTime;
+    bool m_isDeleted = false;
 };
 
 // My Things End

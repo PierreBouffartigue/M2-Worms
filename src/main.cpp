@@ -59,7 +59,8 @@ public:
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
-            Vector2D vectorDir = Vector2D(mousePos.x - m_body.getPosition().x, mousePos.y - m_body.getPosition().y);
+            Vector2D vectorDir = Vector2D(static_cast<float>(mousePos.x) - m_body.getPosition().x,
+                                          static_cast<float>(mousePos.y) - m_body.getPosition().y);
             const float force = 2.0f;
 
             Vector2D gravity = Vector2D(0.0f, 981.0f);
@@ -77,7 +78,12 @@ public:
 
         for (auto &i: m_listOfProjectile) {
             if (i != nullptr)
-                i->UpdateAndMove(deltaTime, map);
+                if(!i->getIsDeleted()){
+                    i->UpdateAndMove(deltaTime, map);
+                } else{
+                    removeProjectile(i);
+                }
+
         }
     }
 
@@ -129,6 +135,13 @@ public:
                 m_velocity.y = 0.f;
             }
         }
+    }
+
+    void removeProjectile(Projectile *projectile) {
+        m_listOfProjectile.erase(std::remove_if(m_listOfProjectile.begin(), m_listOfProjectile.end(),
+                                                [projectile](Projectile *p) { return p == projectile; }),
+                                 m_listOfProjectile.end());
+        delete projectile;
     }
 
     void takeDamage(const float damage) {
@@ -216,8 +229,6 @@ public:
 
     sf::VertexArray generate(const int width, const int height) const {
         sf::VertexArray curve(sf::LineStrip, width);
-
-        //float factor = static_cast<float>(2 * M_PI) / static_cast<float>(width);
         float factor = static_cast<float>(2 * 3.14159265358979323846) / static_cast<float>(width);
 
         float heightFactor = static_cast<float>(height) / 2;
@@ -405,7 +416,7 @@ private:
     sf::RenderWindow m_window;
     std::unique_ptr<Ground> m_ground;
     Player firstPlayer{{0, 0}, {20, 20}, sf::Color::Yellow};
-    Player secondPlayer{{0, 0}, {20, 20}, sf::Color::Magenta};
+    Player secondPlayer{{static_cast<float>(m_width - 10), 0}, {20, 20}, sf::Color::Red};
     std::uint8_t isFirstPlayerTurn{};
     sf::Clock m_clock;
     float m_deltaTime;
