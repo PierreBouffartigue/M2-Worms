@@ -64,7 +64,7 @@ public:
 
     sf::Vector2<float> getPosition() override;
 
-    void projectileCollision(float deltaTime, sf::VertexArray &map);
+    void projectileCollision(sf::VertexArray &map);
 
     bool getIsDeleted() const;
 

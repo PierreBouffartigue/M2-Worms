@@ -42,6 +42,7 @@ void Player::update(float deltaTime, const sf::VertexArray &map, sf::RenderWindo
         if (i != nullptr) {
             if (!i->getIsDeleted()) {
                 i->update(deltaTime);
+                i->projectileCollision(const_cast<sf::VertexArray &>(map));
             } else {
                 removeProjectile(i);
             }
