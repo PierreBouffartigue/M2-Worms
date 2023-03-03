@@ -37,11 +37,14 @@ public:
         if (m_texture.loadFromFile("assets/textures/1.png")) {
             m_body.setTexture(&m_texture);
         }
-        auto *newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 100.0f), 1000.0f);
+        auto *newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 300.0f), 1000.0f);
         m_listOfBH.push_back(newBH);
     }
 
     ~Player() = default;
+
+    Vector2D gravity = Vector2D(0.0f, 98.1f);
+    Vector2D wind = Vector2D(1.0f, 0);
 
     void handleEvents(const float deltaTime, sf::VertexArray map, sf::RenderWindow &m_window) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
@@ -64,9 +67,6 @@ public:
             Vector2D vectorDir = Vector2D(static_cast<float>(mousePos.x) - m_body.getPosition().x,
                                           static_cast<float>(mousePos.y) - m_body.getPosition().y);
             const float force = 2.0f;
-
-            Vector2D gravity = Vector2D(0.0f, 98.1f);
-            Vector2D wind = Vector2D(-100.0f, 0);
             Vector2D accVector = gravity + wind;
 
             // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
@@ -91,7 +91,8 @@ public:
 
     void playerCollision(const float deltaTime, const sf::VertexArray &map, sf::RenderWindow &m_window) {
         sf::FloatRect playerBody = m_body.getGlobalBounds();
-        sf::Vector2f playerMove = m_velocity * deltaTime;
+        m_acc += sf::Vector2f(0.f, gravity._y) * 0.5f * deltaTime * deltaTime;
+        sf::Vector2f playerMove = m_acc + m_velocity * deltaTime;
 
         if (playerBody.left + playerMove.x < 0) {
             playerMove.x = -playerBody.left;
@@ -131,6 +132,7 @@ public:
         if (!collision) {
             m_body.move(playerMove);
         } else {
+            m_acc.y = 0;
             if (playerMove.x != 0.f) {
                 m_velocity.x = 0.f;
             } else if (playerMove.y != 0.f) {
@@ -177,6 +179,7 @@ public:
 private:
     sf::RectangleShape m_body;
     sf::Vector2f m_velocity;
+    sf::Vector2f m_acc;
     const float m_speed = 100.f;
     float m_health = 100.f;
     sf::Texture m_texture;
