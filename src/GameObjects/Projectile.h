@@ -3,22 +3,35 @@
 #include <SFML/System/Vector2.hpp>
 #include "../Utils/Math.h"
 #include "../../GameEngine/GameObjects/IGameObject.h"
+#include "BlackHole.h"
 
 struct ProjectionData {
-    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc) :
+    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc, std::vector<BlackHole*>& listOfBH) :
             m_pos(pos),
             m_spe(spe),
-            m_acc(acc)
+            m_acc(acc),
+            m_listOfBH(listOfBH)
     {}
 
     void update(const float time) {
-        float tmpsVitx = m_acc._x * time + m_spe._x;
-        float tmpsVity = m_acc._y * time + m_spe._y;
+        float tmpsAccx = m_acc._x;
+        float tmpsAccy = m_acc._y;
 
-        m_pos._x += m_acc._x * time * time * 0.5f + m_spe._x * time;
-        m_pos._y += m_acc._y * time * time * 0.5f + m_spe._y * time;
-        m_spe._x = tmpsVitx;
-        m_spe._y = tmpsVity;
+        for (auto &i: m_listOfBH) {
+            Vector2D vectorG(i->getPos()._x - m_pos._x, i->getPos()._y - m_pos._y);
+            vectorG.Normalize();
+
+            tmpsAccx += vectorG._x * i->getGravitationalForce();
+            tmpsAccy += vectorG._y * i->getGravitationalForce();
+        }
+
+        const float tmpsSpeedx = tmpsAccx * time + m_spe._x;
+        const float tmpsSpeedy = tmpsAccy * time + m_spe._y;
+
+        m_pos._x += tmpsAccx * time * time * 0.5f + m_spe._x * time;
+        m_pos._y += tmpsAccy * time * time * 0.5f + m_spe._y * time;
+        m_spe._x = tmpsSpeedx;
+        m_spe._y = tmpsSpeedy;
     }
 
     Vector2D getPosition() { return m_pos; }
@@ -31,6 +44,7 @@ private:
     Vector2D m_pos;
     Vector2D m_spe;
     Vector2D m_acc;
+    std::vector<BlackHole*>& m_listOfBH;
 };
 
 class Projectile : public IGameObject {

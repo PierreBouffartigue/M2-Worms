@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Projectile.h"
 
 Projectile::Projectile(ProjectionData data, const sf::Vector2f &size, const float lifeTime = 3.0f) : m_projData(data), m_shape(size), m_lifeTime(lifeTime) {

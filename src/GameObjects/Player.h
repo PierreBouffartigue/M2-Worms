@@ -33,8 +33,11 @@ public:
 
     void removeProjectile(Projectile *projectile);
 
+    void createProjectile(Vector2D spe, const Vector2D acc);
+
 private:
     sf::Vector2f m_velocity;
+    sf::Vector2f m_acc;
     const float m_speed = 100.f;
     const sf::Texture* m_texture;
     sf::Sprite m_sprite;
@@ -42,4 +45,5 @@ private:
     float m_health = 100.f;
 
     std::vector<Projectile*> m_listOfProjectile;
+    std::vector<BlackHole*> m_listOfBH;
 };

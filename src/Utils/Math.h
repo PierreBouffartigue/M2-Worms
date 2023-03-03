@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 struct Vector2D {
     Vector2D(const float x, const float y) :
             _x(x),
@@ -19,6 +21,19 @@ struct Vector2D {
         return *this;
     }
 
+    Vector2D getNormalized() const {
+        const float norm = std::sqrt(_x * _x + _y * _y);
+        const float x = _x / norm;
+        const float y = _y / norm;
+
+        return Vector2D{x, y};
+    }
+
+    void Normalize() {
+        const float norm = std::sqrt(_x * _x + _y * _y);
+        _x /= norm;
+        _y /= norm;
+    }
     float _x;
     float _y;
 };

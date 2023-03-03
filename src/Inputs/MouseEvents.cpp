@@ -33,15 +33,11 @@ void MouseEvents::handleOnMouseLeftClick(sf::Event &event, sf::Vector2f mousePos
         Vector2D vectorDir = Vector2D(mousePosition.x - player.getPosition().x, mousePosition.y - player.getPosition().y);
         const float force = 2.0f;
 
-        Vector2D gravity = Vector2D(0.0f, 981.0f);
+        Vector2D gravity = Vector2D(0.0f, 98.1f);
         Vector2D wind = Vector2D(-100.0f, 0);
         Vector2D accVector = gravity + wind;
 
-        // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
-        auto *NewProjectile = new Projectile(
-                ProjectionData(Vector2D(player.getPosition().x, player.getPosition().y), vectorDir * force,
-                               accVector), sf::Vector2(10.f, 10.f), 0.5f);
-        player.addProjectileInList(NewProjectile);
+        player.createProjectile(vectorDir * force, accVector);
     }
 }
 
