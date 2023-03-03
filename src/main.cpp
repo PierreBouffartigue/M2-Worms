@@ -141,7 +141,6 @@ public:
         m_listOfProjectile.erase(std::remove_if(m_listOfProjectile.begin(), m_listOfProjectile.end(),
                                                 [projectile](Projectile *p) { return p == projectile; }),
                                  m_listOfProjectile.end());
-        delete projectile;
     }
 
     void takeDamage(const float damage) {
