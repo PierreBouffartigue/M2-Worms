@@ -34,8 +34,11 @@ public:
         m_body.setPosition(position);
         m_body.setFillColor(color);
         //TODO : Texture dans loader
-        if (m_texture.loadFromFile("../assets/textures/1.png")) {
+        if (m_texture.loadFromFile("assets/textures/1.png")) {
             m_body.setTexture(&m_texture);
+
+            BlackHole* newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 100.0f), 1000.0f);
+            m_listOfBH.push_back(newBH);
         }
     }
 
@@ -63,14 +66,14 @@ public:
                                           static_cast<float>(mousePos.y) - m_body.getPosition().y);
             const float force = 2.0f;
 
-            Vector2D gravity = Vector2D(0.0f, 981.0f);
+            Vector2D gravity = Vector2D(0.0f, 98.1f);
             Vector2D wind = Vector2D(-100.0f, 0);
             Vector2D accVector = gravity + wind;
 
             // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
             auto *NewProjectile = new Projectile(
                     ProjectionData(Vector2D(m_body.getPosition().x, m_body.getPosition().y), vectorDir * force,
-                                   accVector), sf::Vector2(10.f, 10.f), 0.5f);
+                                   accVector, m_listOfBH), sf::Vector2(10.f, 10.f), 2.0f);
             m_listOfProjectile.push_back(NewProjectile);
         }
 
@@ -161,6 +164,12 @@ public:
             if (i != nullptr)
                 window.draw(i->getShape());
         }
+
+        for (auto &i: m_listOfBH)
+        {
+            if (i != nullptr)
+                window.draw(i->getShape());
+        }
     }
 
     sf::RectangleShape getPlayerBody() {
@@ -173,7 +182,8 @@ private:
     const float m_speed = 100.f;
     float m_health = 100.f;
     sf::Texture m_texture;
-    std::vector<Projectile *> m_listOfProjectile;
+    std::vector<Projectile*> m_listOfProjectile;
+    std::vector<BlackHole*> m_listOfBH;
 };
 
 class Utils {
@@ -349,7 +359,7 @@ public:
         m_window.setFramerateLimit(60);
         m_ground->regenerate(m_window);
         // TODO load texture dans loader
-        if (!m_backgroundTexture.loadFromFile("../assets/textures/background.png")) {
+        if (!m_backgroundTexture.loadFromFile("assets/textures/background.png")) {
             std::cerr << "Erreur lors du chargement de l'image de fond" << std::endl;
         }
     }

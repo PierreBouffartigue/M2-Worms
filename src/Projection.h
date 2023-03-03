@@ -23,24 +23,86 @@ struct Vector2D {
         return *this;
     }
 
+    Vector2D getNormalized()
+    {
+        const float norm = sqrt(_x * _x + _y * _y);
+        const float x = _x / norm;
+        const float y = _y / norm;
+
+        return Vector2D(x, y);
+    }
+
+    void Normalize()
+    {
+        const float norm = sqrt(_x * _x + _y * _y);
+        _x /= norm;
+        _y /= norm;
+    }
+
     float _x;
     float _y;
 };
 
+struct BlackHole
+{
+public:
+    BlackHole(const sf::Vector2f& size, const Vector2D pos, const float baseGForce = 1.0f) :
+        m_pos(pos),
+        m_gravitationalForce(baseGForce),
+        m_shape(size)
+    {
+        m_shape.setPosition(sf::Vector2f(pos._x, pos._y));
+        m_shape.setFillColor(sf::Color::Black);
+    }
+
+    const Vector2D getPos()
+    {
+        return m_pos;
+    }
+
+    const float getGravitationalForce()
+    {
+        return m_gravitationalForce;
+    }
+
+    sf::RectangleShape getShape() {
+        return m_shape;
+    }
+
+private:
+    Vector2D m_pos;
+    float m_gravitationalForce;
+    sf::RectangleShape m_shape;
+};
+
 struct ProjectionData {
-    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc) :
+    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc, std::vector<BlackHole*>& listOfBH) :
             m_pos(pos),
             m_spe(spe),
-            m_acc(acc) {}
+            m_acc(acc),
+            m_listOfBH(listOfBH)
+    {}
 
     void Update(const float time) {
-        float tmpsVitx = m_acc._x * time + m_spe._x;
-        float tmpsVity = m_acc._y * time + m_spe._y;
+        float tmpsAccx = m_acc._x;
+        float tmpsAccy = m_acc._y;
 
-        m_pos._x += m_acc._x * time * time * 0.5f + m_spe._x * time;
-        m_pos._y += m_acc._y * time * time * 0.5f + m_spe._y * time;
-        m_spe._x = tmpsVitx;
-        m_spe._y = tmpsVity;
+        for (int i = 0; i < m_listOfBH.size(); ++i)
+        {
+            Vector2D vectorG(m_listOfBH.at(i)->getPos()._x - m_pos._x, m_listOfBH.at(i)->getPos()._y - m_pos._y);
+            vectorG.Normalize();
+
+            tmpsAccx += vectorG._x * m_listOfBH.at(i)->getGravitationalForce();
+            tmpsAccy += vectorG._y * m_listOfBH.at(i)->getGravitationalForce();
+        }
+
+        const float tmpsSpeedx = tmpsAccx * time + m_spe._x;
+        const float tmpsSpeedy = tmpsAccy * time + m_spe._y;
+
+        m_pos._x += tmpsAccx * time * time * 0.5f + m_spe._x * time;
+        m_pos._y += tmpsAccy * time * time * 0.5f + m_spe._y * time;
+        m_spe._x = tmpsSpeedx;
+        m_spe._y = tmpsSpeedy;
     }
 
     Vector2D getPosition() {
@@ -59,6 +121,7 @@ private:
     Vector2D m_pos;
     Vector2D m_spe;
     Vector2D m_acc;
+    std::vector<BlackHole*>& m_listOfBH;
 };
 
 class Projectile {
@@ -66,7 +129,8 @@ public:
     Projectile(ProjectionData data, const sf::Vector2f &size, const float lifeTime = 3.0f) :
             m_projData(data),
             m_shape(size),
-            m_lifeTime(lifeTime) {
+            m_lifeTime(lifeTime)
+    {
         m_shape.setPosition(sf::Vector2f(data.getPosition()._x, data.getPosition()._y));
         m_shape.setFillColor(sf::Color::Red);
     }
