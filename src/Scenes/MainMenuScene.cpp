@@ -40,7 +40,7 @@ void MainMenuScene::processInput() {
     handleOnMouseHover(mouseCoords, buttons);
 }
 
-void MainMenuScene::update() {
+void MainMenuScene::update(float deltaTime) {
 
 }
 

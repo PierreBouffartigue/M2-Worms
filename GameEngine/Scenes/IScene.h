@@ -10,7 +10,7 @@ public:
     virtual ~IScene() = default;
 
     virtual void processInput() = 0;
-    virtual void update() = 0;
+    virtual void update(float deltaTime) = 0;
     virtual void render() = 0;
 
 protected:

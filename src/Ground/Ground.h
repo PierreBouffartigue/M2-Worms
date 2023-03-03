@@ -10,15 +10,19 @@ public:
 
     ~Ground() = default;
 
-    void regenerate(sf::RenderWindow &m_window);
+    void regenerate(sf::RenderWindow* window);
 
-    void handleEvents(sf::RenderWindow &m_window);
+    void processInput(sf::RenderWindow* window);
+    void update(sf::RenderWindow* window);
+    void render(sf::RenderWindow* window);
 
-    void draw(sf::RenderWindow &m_window);
 
-    void update(sf::RenderWindow &m_window);
 
     sf::VertexArray getGroundPixels();
+
+    float getDestroyRadius() const;
+
+    void destroyGroundPixel(sf::Vertex pixel);
 
 private:
     std::uint8_t isFlatModEnable = false;

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics.hpp>
 #include "../Utils/Math.h"
+#include "../../GameEngine/GameObjects/IGameObject.h"
 
 struct ProjectionData {
     ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc) :
@@ -11,7 +11,7 @@ struct ProjectionData {
             m_acc(acc)
     {}
 
-    void Update(const float time) {
+    void update(const float time) {
         float tmpsVitx = m_acc._x * time + m_spe._x;
         float tmpsVity = m_acc._y * time + m_spe._y;
 
@@ -33,17 +33,25 @@ private:
     Vector2D m_acc;
 };
 
-class Projectile {
+class Projectile : public IGameObject {
 public:
-    Projectile(ProjectionData data, const sf::Vector2f size);
+    Projectile(ProjectionData data, const sf::Vector2f size, const float lifeTime);
 
-    ~Projectile() = default;
+    ~Projectile() override = default;
+
+    void processInput() override;
+    void update(float deltaTime) override;
+    void render(sf::RenderWindow* window) override;
 
     sf::RectangleShape getShape();
 
-    void UpdateAndMove(const float deltaTime);
+    void setPosition(float x, float y) override;
+    sf::Vector2<float> getPosition() override;
+
+    void projectileCollision(const float deltaTime, sf::VertexArray &map);
 
 private:
     ProjectionData m_projData;
     sf::RectangleShape m_shape;
+    float m_lifeTime;
 };

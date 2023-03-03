@@ -21,11 +21,11 @@ void Utils::saveGame(const sf::VertexArray &pixels, Player &firstPlayer, Player 
     }
 
     outputFile << "FirstPlayer\n";
-    const sf::Vector2f &firstPlayerPos = firstPlayer.getPlayerBody().getPosition();
+    const sf::Vector2f &firstPlayerPos = firstPlayer.getPosition();
     outputFile << firstPlayerPos.x << "," << firstPlayerPos.y << "\n";
 
     outputFile << "SecondPlayer\n";
-    const sf::Vector2f &secondPlayerPos = secondPlayer.getPlayerBody().getPosition();
+    const sf::Vector2f &secondPlayerPos = secondPlayer.getPosition();
     outputFile << secondPlayerPos.x << "," << secondPlayerPos.y << "\n";
 
     outputFile.close();

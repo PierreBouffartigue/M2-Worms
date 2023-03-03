@@ -1,12 +1,16 @@
 #include <iostream>
 #include "Player.h"
 
-Player::Player(const sf::Vector2f position, const sf::Vector2f size, const sf::Color color) : m_body(size), m_velocity(sf::Vector2f(0.f, 0.f)), m_speed(100.f) {
-    m_body.setPosition(position);
-    m_body.setFillColor(color);
+Player::Player(const sf::Texture *texture, const sf::Vector2f position, const sf::Vector2f size) : m_texture(texture), m_sprite(sf::Sprite(*texture)), m_velocity(sf::Vector2f(0.f, 0.f)), m_speed(100.f) {
+    m_sprite.setPosition(position);
 }
 
-void Player::handleEvents(const float deltaTime, const sf::VertexArray &map, sf::RenderWindow &m_window) {
+Player::~Player() {
+    delete m_texture;
+}
+
+void Player::processInput() {
+    // Keyboard Event
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
         m_velocity.x = -m_speed;
     } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
@@ -21,19 +25,61 @@ void Player::handleEvents(const float deltaTime, const sf::VertexArray &map, sf:
     } else {
         m_velocity.y = 0.f;
     }
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    {
-        // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
-        const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-        Vector2D vectorDir = Vector2D(mousePos.x - m_body.getPosition().x, mousePos.y - m_body.getPosition().y);
-        Projectile* NewProjectile = new Projectile(ProjectionData(Vector2D(m_body.getPosition().x, m_body.getPosition().y), vectorDir * 2.500f, Vector2D(0.f, 98.1f)), sf::Vector2(10.f, 10.f));
-        m_listOfProjectile.push_back(NewProjectile);
+}
 
-        std::cout << "Fire ! --> " << mousePos.x << " : " << mousePos.y << std::endl;
+void Player::update(float deltaTime) {
+
+}
+
+void Player::update(float deltaTime, const sf::VertexArray &map, sf::RenderWindow* window) {
+    playerCollision(deltaTime, map, window);
+
+    for (auto &i: m_listOfProjectile) {
+        if (i != nullptr)
+            i->update(deltaTime);
     }
+}
 
-    sf::FloatRect playerBody = m_body.getGlobalBounds();
+void Player::render(sf::RenderWindow *window) {
+    window->draw(m_sprite);
+
+    for(int i = 0; i < m_listOfProjectile.size(); ++i)
+    {
+        if(m_listOfProjectile[i] != nullptr)
+            m_listOfProjectile[i]->render(window);
+    }
+}
+
+sf::Rect<float> Player::getGlobalBounds() {
+    return m_sprite.getGlobalBounds();
+}
+
+void Player::setPosition(float x, float y) {
+    m_sprite.setPosition(x, y);
+}
+
+sf::Vector2<float> Player::getPosition() {
+    return m_sprite.getPosition();
+}
+
+void Player::move(sf::Vector2<float> position) {
+    m_sprite.move(position);
+}
+
+void Player::playerCollision(const float deltaTime, const sf::VertexArray &map, sf::RenderWindow* window) {
+    sf::FloatRect playerBody = getGlobalBounds();
     sf::Vector2f playerMove = m_velocity * deltaTime;
+
+    if (playerBody.left + playerMove.x < 0) {
+        playerMove.x = -playerBody.left;
+    } else if (playerBody.left + playerBody.width + playerMove.x > static_cast<float>(window->getSize().x)) {
+        playerMove.x = static_cast<float>(window->getSize().x) - playerBody.left - playerBody.width;
+    }
+    if (playerBody.top + playerMove.y < 0) {
+        playerMove.y = -playerBody.top;
+    } else if (playerBody.top + playerBody.height + playerMove.y > static_cast<float>(window->getSize().y)) {
+        playerMove.y = static_cast<float>(window->getSize().y) - playerBody.top - playerBody.height;
+    }
 
     sf::FloatRect playerBodyBounds(
             std::min(playerBody.left, playerBody.left + playerMove.x),
@@ -60,7 +106,7 @@ void Player::handleEvents(const float deltaTime, const sf::VertexArray &map, sf:
     }
 
     if (!collision) {
-        m_body.move(playerMove);
+        move(playerMove);
     } else {
         if (playerMove.x != 0.f) {
             m_velocity.x = 0.f;
@@ -68,24 +114,23 @@ void Player::handleEvents(const float deltaTime, const sf::VertexArray &map, sf:
             m_velocity.y = 0.f;
         }
     }
+}
 
-    for (int i = 0; i < m_listOfProjectile.size(); ++i)
-    {
-        if (m_listOfProjectile[i] != nullptr)
-            m_listOfProjectile[i]->UpdateAndMove(deltaTime);
+void Player::takeDamage(const float damage) {
+    m_health -= damage;
+    if (m_health <= 0) {
+        //TODO : Joueur mort
     }
 }
 
-void Player::draw(sf::RenderWindow &window) {
-    window.draw(m_body);
-
-    for(int i = 0; i < m_listOfProjectile.size(); ++i)
-    {
-        if(m_listOfProjectile[i] != nullptr)
-            window.draw(m_listOfProjectile[i]->getShape());
-    }
+void Player::heal(const float heal) {
+    m_health += heal;
 }
 
-sf::RectangleShape Player::getPlayerBody() {
-    return m_body;
+const std::vector<Projectile *> &Player::getListOfProjectile() const {
+    return m_listOfProjectile;
+}
+
+void Player::addProjectileInList(Projectile* projectile) {
+    m_listOfProjectile.push_back(projectile);
 }

@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_executable(worms
         src/main.cpp
-        GameEngine/IGame.h GameEngine/Scenes/IScene.h GameEngine/UI/IButton.cpp GameEngine/UI/IButton.h
+        GameEngine/IGame.h GameEngine/Scenes/IScene.h GameEngine/UI/IButton.cpp GameEngine/UI/IButton.h GameEngine/GameObjects/IGameObject.h
         src/UI/Button.cpp src/UI/Button.h
         src/Game.cpp src/Game.h
         src/Scenes/EScenes.h src/Scenes/MainMenuScene.cpp src/Scenes/MainMenuScene.h src/Scenes/PlayGameScene.cpp src/Scenes/PlayGameScene.h

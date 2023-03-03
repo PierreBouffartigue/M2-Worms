@@ -14,7 +14,7 @@ public:
 
     void loadAssets();
     void processInput() override;
-    void update() override;
+    void update(float deltaTime) override;
     void render() override;
 
     void addButton(const sf::String &Text, const IButton::EventType& OnClick, sf::Vector2f position);

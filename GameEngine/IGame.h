@@ -17,17 +17,14 @@ public:
 
     void run() {
         sf::Clock clock;
-        float deltaTime = 0.f;
-        float frameTimeElapsed;
+        m_deltaTime = 0.f;
 
         while (m_window.isOpen()) {
             processInput();
 
-            deltaTime += clock.restart().asSeconds();
-            while (frameTimeElapsed > deltaTime) {
-                frameTimeElapsed -= deltaTime;
-                update(deltaTime);
-            }
+            m_deltaTime = clock.restart().asSeconds();
+            update(m_deltaTime);
+
             render();
         }
     }
@@ -35,6 +32,8 @@ public:
     sf::RenderWindow* getWindow() { return &m_window; }
 
     void closeGame() { m_window.close(); }
+
+    float getDeltaTime() { return m_deltaTime; }
 
 protected:
     void processInput() {
@@ -48,7 +47,7 @@ protected:
         if (nullptr == m_currentScene)
             return;
 
-        m_currentScene->update();
+        m_currentScene->update(deltaTime);
     }
 
     void render() {
@@ -63,6 +62,8 @@ protected:
     sf::RenderWindow m_window;
     const int m_width;
     const int m_height;
+
+    float m_deltaTime;
 
     SceneType m_currentScene;
 };

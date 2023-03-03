@@ -2,7 +2,7 @@
 
 Ground::Ground() : m_destroyRadius(10.0f) {}
 
-void Ground::regenerate(sf::RenderWindow &m_window) {
+void Ground::regenerate(sf::RenderWindow* window) {
     if (isFlatModEnable) {
         curve_ = Curve(1, 10.f);
     } else {
@@ -11,7 +11,7 @@ void Ground::regenerate(sf::RenderWindow &m_window) {
 
     m_groundPixels.clear();
     m_groundPixels.setPrimitiveType(sf::Points);
-    const sf::Vector2u windowSize = m_window.getSize();
+    const sf::Vector2u windowSize = window->getSize();
 
     std::vector<sf::Vector2f> curveVertices;
     for (int x = 0; x < windowSize.x; x++) {
@@ -40,35 +40,33 @@ void Ground::regenerate(sf::RenderWindow &m_window) {
     }
 }
 
-void Ground::handleEvents(sf::RenderWindow &m_window) {
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-        for (int i = 0; i < m_groundPixels.getVertexCount(); i++) {
-            const sf::Vertex &vertex = m_groundPixels[i];
-            const float distance = std::hypotf(static_cast<float>(mousePos.x) - vertex.position.x,
-                                               static_cast<float>(mousePos.y) - vertex.position.y);
-            if (distance < m_destroyRadius) {
-                m_groundPixels[i].color = sf::Color::Transparent;
-                m_groundPixels[i].position = sf::Vector2f(-10000.f, -10000.f);
-            }
-        }
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-        regenerate(m_window);
+void Ground::processInput(sf::RenderWindow* window) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        regenerate(window);
     } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
         isFlatModEnable = !isFlatModEnable;
         std::cout << "Flat mod : " + std::to_string(isFlatModEnable) << std::endl;
     }
 }
 
-void Ground::draw(sf::RenderWindow &m_window) {
-    m_window.draw(m_curve);
-    m_window.draw(m_groundPixels);
+void Ground::update(sf::RenderWindow* window) {
+    m_curve = curve_.generate(static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y));
 }
 
-void Ground::update(sf::RenderWindow &m_window) {
-    m_curve = curve_.generate(static_cast<int>(m_window.getSize().x), static_cast<int>(m_window.getSize().y));
+void Ground::render(sf::RenderWindow* window) {
+    window->draw(m_curve);
+    window->draw(m_groundPixels);
 }
 
 sf::VertexArray Ground::getGroundPixels() {
     return m_groundPixels;
+}
+
+float Ground::getDestroyRadius() const {
+    return m_destroyRadius;
+}
+
+void Ground::destroyGroundPixel(sf::Vertex pixel) {
+    pixel.color = sf::Color::Transparent;
+    pixel.position = sf::Vector2f(-10000.f, -10000.f);
 }
