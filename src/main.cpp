@@ -36,10 +36,9 @@ public:
         //TODO : Texture dans loader
         if (m_texture.loadFromFile("assets/textures/1.png")) {
             m_body.setTexture(&m_texture);
-
-            auto* newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 100.0f), 1000.0f);
-            m_listOfBH.push_back(newBH);
         }
+        auto *newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 100.0f), 1000.0f);
+        m_listOfBH.push_back(newBH);
     }
 
     ~Player() = default;
@@ -81,9 +80,9 @@ public:
 
         for (auto &i: m_listOfProjectile) {
             if (i != nullptr)
-                if(!i->getIsDeleted()){
+                if (!i->getIsDeleted()) {
                     i->UpdateAndMove(deltaTime, map);
-                } else{
+                } else {
                     removeProjectile(i);
                 }
 
@@ -165,8 +164,7 @@ public:
                 window.draw(i->getShape());
         }
 
-        for (auto &i: m_listOfBH)
-        {
+        for (auto &i: m_listOfBH) {
             if (i != nullptr)
                 window.draw(i->getShape());
         }
@@ -182,8 +180,8 @@ private:
     const float m_speed = 100.f;
     float m_health = 100.f;
     sf::Texture m_texture;
-    std::vector<Projectile*> m_listOfProjectile;
-    std::vector<BlackHole*> m_listOfBH;
+    std::vector<Projectile *> m_listOfProjectile;
+    std::vector<BlackHole *> m_listOfBH;
 };
 
 class Utils {
