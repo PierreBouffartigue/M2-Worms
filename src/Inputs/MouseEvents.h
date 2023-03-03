@@ -17,7 +17,7 @@ protected:
     void handleOnMouseLeftClick(sf::Event& event, std::vector<IButton*>& buttons);
 
     // Button Player
-    void handleOnMouseLeftClick(sf::Event& event, sf::Vector2f mousePosition, Player& player);
+    void handleOnMouseRightClick(sf::Event& event, sf::Vector2f mousePosition, Player& player);
 
     // Button Ground
     void handleOnMouseLeftClick(sf::Event& event, sf::Vector2f mousePosition, Ground& ground);

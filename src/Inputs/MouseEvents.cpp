@@ -28,8 +28,8 @@ void MouseEvents::setMousePressed(sf::Event &Event) {
     }
 }
 
-void MouseEvents::handleOnMouseLeftClick(sf::Event &event, sf::Vector2f mousePosition, Player &player) {
-    if (sf::Event::MouseButtonPressed == event.type && sf::Mouse::Button::Left == event.mouseButton.button) {
+void MouseEvents::handleOnMouseRightClick(sf::Event &event, sf::Vector2f mousePosition, Player &player) {
+    if (sf::Event::MouseButtonPressed == event.type && sf::Mouse::Button::Right == event.mouseButton.button) {
         Vector2D vectorDir = Vector2D(mousePosition.x - player.getPosition().x, mousePosition.y - player.getPosition().y);
         const float force = 2.0f;
 

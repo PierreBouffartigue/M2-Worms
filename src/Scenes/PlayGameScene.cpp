@@ -50,15 +50,15 @@ void PlayGameScene::processInput() {
             std::cout << "Player turn: " + std::to_string(isFirstPlayerTurn + 1) << std::endl;
         }
 
-        //handleOnMouseLeftClick(event, mouseCoords, *m_ground);
+        //handleOnMouseRightClick(event, mouseCoords, *m_ground);
         m_ground->processInput(m_game.getWindow());
 
         if (isFirstPlayerTurn) {
-            handleOnMouseLeftClick(event, mouseCoords, *m_playerOne);
+            handleOnMouseRightClick(event, mouseCoords, *m_playerOne);
             m_playerOne->processInput();
         }
         else {
-            handleOnMouseLeftClick(event, mouseCoords, *m_playerTwo);
+            handleOnMouseRightClick(event, mouseCoords, *m_playerTwo);
             m_playerTwo->processInput();
         }
 
