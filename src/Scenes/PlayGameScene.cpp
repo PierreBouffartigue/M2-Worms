@@ -15,6 +15,12 @@ PlayGameScene::PlayGameScene(Game &game) : IScene(game), m_ground(std::make_uniq
               sf::Vector2f(static_cast<float>(m_game.getWindow()->getSize().x) - 150.f, 30));
     addButton("End Turn", [this](auto &&btn) { changeTurn(); },
               sf::Vector2f(static_cast<float>(m_game.getWindow()->getSize().x) - 350.f, 30), 150.f);
+    addButton("Save Game", [this](auto &&btn) { Utils::saveGame(m_ground->getGroundPixels(), *m_playerOne, *m_playerTwo);; },
+              sf::Vector2f(static_cast<float>(m_game.getWindow()->getSize().x) - 550.f, 30), 170.f);
+    addButton("Regenerate Ground", [this](auto &&btn) { m_ground->regenerate(m_game.getWindow()); },
+              sf::Vector2f(static_cast<float>(m_game.getWindow()->getSize().x) - 850.f, 30), 270.f);
+    addButton("Flat Mode", [this](auto &&btn) { m_ground->changeFlatMode(); },
+              sf::Vector2f(static_cast<float>(m_game.getWindow()->getSize().x) - 1050.f, 30), 170.f);
 }
 
 PlayGameScene::~PlayGameScene() {
@@ -43,11 +49,6 @@ void PlayGameScene::processInput() {
         if (sf::Event::Closed == event.type) {
             m_game.closeGame();
             continue;
-        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-            Utils::saveGame(m_ground->getGroundPixels(), *m_playerOne, *m_playerTwo);
-        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::T)) {
-            isFirstPlayerTurn = !isFirstPlayerTurn;
-            std::cout << "Player turn: " + std::to_string(isFirstPlayerTurn + 1) << std::endl;
         }
 
         //handleOnMouseRightClick(event, mouseCoords, *m_ground);

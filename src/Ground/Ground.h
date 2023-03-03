@@ -25,6 +25,8 @@ public:
 
     void destroyGroundPixel(sf::Vertex pixel);
 
+    void changeFlatMode();
+
 private:
     std::uint8_t isFlatModEnable = false;
     float m_destroyRadius;

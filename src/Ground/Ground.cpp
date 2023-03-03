@@ -39,12 +39,7 @@ void Ground::regenerate(sf::RenderWindow *window) {
 }
 
 void Ground::processInput(sf::RenderWindow *window) {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-        regenerate(window);
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
-        isFlatModEnable = !isFlatModEnable;
-        std::cout << "Flat mod : " + std::to_string(isFlatModEnable) << std::endl;
-    }
+
 }
 
 void Ground::update(sf::RenderWindow *window) {
@@ -67,4 +62,9 @@ float Ground::getDestroyRadius() const {
 void Ground::destroyGroundPixel(sf::Vertex pixel) {
     pixel.color = sf::Color::Transparent;
     pixel.position = sf::Vector2f(-10000.f, -10000.f);
+}
+
+void Ground::changeFlatMode() {
+    isFlatModEnable = !isFlatModEnable;
+    std::cout << "Flat mod : " + std::to_string(isFlatModEnable) << std::endl;
 }
