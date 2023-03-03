@@ -1,14 +1,14 @@
 #include "MouseEvents.h"
 
 void MouseEvents::handleOnMouseHover(sf::Vector2f mousePosition, std::vector<IButton *> &buttons) {
-    for (auto & button : buttons) {
+    for (auto &button: buttons) {
         button->hover(button->getGlobalBounds().contains(mousePosition));
     }
 }
 
 void MouseEvents::handleOnMouseLeftClick(sf::Event &event, std::vector<IButton *> &buttons) {
     if (sf::Event::MouseButtonPressed == event.type && sf::Mouse::Button::Left == event.mouseButton.button) {
-        for (auto & button : buttons) {
+        for (auto &button: buttons) {
             if (!button->getGlobalBounds().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)))
                 continue;
 
@@ -30,7 +30,8 @@ void MouseEvents::setMousePressed(sf::Event &Event) {
 
 void MouseEvents::handleOnMouseRightClick(sf::Event &event, sf::Vector2f mousePosition, Player &player) {
     if (sf::Event::MouseButtonPressed == event.type && sf::Mouse::Button::Right == event.mouseButton.button) {
-        Vector2D vectorDir = Vector2D(mousePosition.x - player.getPosition().x, mousePosition.y - player.getPosition().y);
+        Vector2D vectorDir = Vector2D(mousePosition.x - player.getPosition().x,
+                                      mousePosition.y - player.getPosition().y);
         const float force = 2.0f;
 
         Vector2D gravity = Vector2D(0.0f, 98.1f);

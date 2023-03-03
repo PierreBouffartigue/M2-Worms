@@ -1,7 +1,8 @@
 #include <iostream>
 #include "Player.h"
 
-Player::Player(const sf::Texture *texture, const sf::Vector2f position, const sf::Vector2f size) : m_texture(texture), m_sprite(sf::Sprite(*texture)), m_velocity(sf::Vector2f(0.f, 0.f)), m_speed(100.f) {
+Player::Player(const sf::Texture *texture, const sf::Vector2f position)
+        : m_texture(texture), m_sprite(sf::Sprite(*texture)), m_velocity(sf::Vector2f(0.f, 0.f)), m_speed(100.f) {
     m_sprite.setPosition(position);
 
     auto *newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 300.0f), 1000.0f);
@@ -34,14 +35,14 @@ void Player::update(float deltaTime) {
 
 }
 
-void Player::update(float deltaTime, const sf::VertexArray &map, sf::RenderWindow* window) {
+void Player::update(float deltaTime, const sf::VertexArray &map, sf::RenderWindow *window) {
     playerCollision(deltaTime, map, window);
 
     for (auto &i: m_listOfProjectile) {
         if (i != nullptr) {
-            if(!i->getIsDeleted()){
+            if (!i->getIsDeleted()) {
                 i->update(deltaTime);
-            } else{
+            } else {
                 removeProjectile(i);
             }
         }
@@ -51,9 +52,9 @@ void Player::update(float deltaTime, const sf::VertexArray &map, sf::RenderWindo
 void Player::render(sf::RenderWindow *window) {
     window->draw(m_sprite);
 
-    for(int i = 0; i < m_listOfProjectile.size(); ++i) {
-        if(m_listOfProjectile[i] != nullptr)
-            m_listOfProjectile[i]->render(window);
+    for (auto &i: m_listOfProjectile) {
+        if (i != nullptr)
+            i->render(window);
     }
 
     for (auto &i: m_listOfBH) {
@@ -78,7 +79,7 @@ void Player::move(sf::Vector2<float> position) {
     m_sprite.move(position);
 }
 
-void Player::playerCollision(const float deltaTime, const sf::VertexArray &map, sf::RenderWindow* window) {
+void Player::playerCollision(const float deltaTime, const sf::VertexArray &map, sf::RenderWindow *window) {
     Vector2D gravity = Vector2D(0.0f, 98.1f);
     sf::FloatRect playerBody = getGlobalBounds();
     m_acc += sf::Vector2f(0.f, gravity._y) * 0.5f * deltaTime * deltaTime;
@@ -146,7 +147,7 @@ const std::vector<Projectile *> &Player::getListOfProjectile() const {
     return m_listOfProjectile;
 }
 
-void Player::addProjectileInList(Projectile* projectile) {
+void Player::addProjectileInList(Projectile *projectile) {
     m_listOfProjectile.push_back(projectile);
 }
 
@@ -159,6 +160,7 @@ void Player::removeProjectile(Projectile *projectile) {
 void Player::createProjectile(Vector2D spe, const Vector2D acc) {
     // Dans "ProjectionData", 1er vector = position, 2ème vector = vitesse initiale (vecteur directeur * force), 3ème vector = acceleration (ensemble des forces constantes)
     auto *newProjectile = new Projectile(
-    ProjectionData(Vector2D(getPosition().x, getPosition().y), spe, acc, m_listOfBH), sf::Vector2(10.f, 10.f), 2.0f);
+            ProjectionData(Vector2D(getPosition().x, getPosition().y), spe, acc, m_listOfBH), sf::Vector2(10.f, 10.f),
+            2.0f);
     m_listOfProjectile.push_back(newProjectile);
 }

@@ -6,7 +6,7 @@
 
 class BlackHole {
 public:
-    BlackHole(const sf::Vector2f& size, const Vector2D pos, const float baseGForce = 1.0f);
+    BlackHole(const sf::Vector2f &size, Vector2D pos, float baseGForce = 1.0f);
 
     Vector2D getPos();
 

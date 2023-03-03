@@ -10,12 +10,13 @@ public:
 
     ~Ground() = default;
 
-    void regenerate(sf::RenderWindow* window);
+    void regenerate(sf::RenderWindow *window);
 
-    void processInput(sf::RenderWindow* window);
-    void update(sf::RenderWindow* window);
-    void render(sf::RenderWindow* window);
+    void processInput(sf::RenderWindow *window);
 
+    void update(sf::RenderWindow *window);
+
+    void render(sf::RenderWindow *window);
 
 
     sf::VertexArray getGroundPixels();

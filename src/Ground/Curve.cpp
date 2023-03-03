@@ -1,6 +1,7 @@
+#include <valarray>
 #include "Curve.h"
 
-Curve::Curve(const int numCurves, const float &curveHeights): m_numCurves(numCurves), m_curveHeights(curveHeights) {}
+Curve::Curve(const int numCurves, const float &curveHeights) : m_numCurves(numCurves), m_curveHeights(curveHeights) {}
 
 sf::VertexArray Curve::generate(const int width, const int height) const {
     sf::VertexArray curve(sf::LineStrip, width);

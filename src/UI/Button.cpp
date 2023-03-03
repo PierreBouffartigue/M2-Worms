@@ -1,6 +1,8 @@
 #include "Button.h"
 
-Button::Button(const sf::String& name, const sf::Font& font, float width, float height, unsigned int characterSize) : m_name(sf::Text(name, font, characterSize)), m_border(sf::RectangleShape(sf::Vector2f(width, height))), m_inactiveColor(sf::Color::White), m_hoverColor(sf::Color::Cyan), m_activeColor(sf::Color::White) {
+Button::Button(const sf::String &name, const sf::Font &font, float width, float height, unsigned int characterSize)
+        : m_name(sf::Text(name, font, characterSize)), m_border(sf::RectangleShape(sf::Vector2f(width, height))),
+          m_inactiveColor(sf::Color::White), m_hoverColor(sf::Color::Cyan), m_activeColor(sf::Color::White) {
     m_border.setFillColor(sf::Color::Black);
     m_border.setOutlineThickness(-m_borderThickness);
     ToggleActive(m_isActive);
@@ -26,7 +28,8 @@ sf::Rect<float> Button::getGlobalBounds() const {
 void Button::setPosition(float x, float y) {
     m_border.setPosition(x, y);
     auto borderBounds = m_border.getGlobalBounds();
-    m_name.setPosition(borderBounds.left + borderBounds.width / 2 - m_name.getGlobalBounds().width / 2, borderBounds.top + borderBounds.height / 2 - m_name.getGlobalBounds().height);
+    m_name.setPosition(borderBounds.left + borderBounds.width / 2 - m_name.getGlobalBounds().width / 2,
+                       borderBounds.top + borderBounds.height / 2 - m_name.getGlobalBounds().height);
 }
 
 sf::Vector2<float> Button::getPosition() const {

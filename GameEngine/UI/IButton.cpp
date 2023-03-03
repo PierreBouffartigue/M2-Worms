@@ -2,9 +2,9 @@
 #include "IButton.h"
 
 IButton::IButton() {
-    m_onHoverStart = [this](auto && btn) { onHoverStart(std::forward<decltype(btn)>(btn)); };
-    m_onHoverEnd = [this](auto && btn) { onHoverEnd(std::forward<decltype(btn)>(btn)); };
-    m_onClick = [this](auto && btn) { onClick(std::forward<decltype(btn)>(btn)); };
+    m_onHoverStart = [this](auto &&btn) { onHoverStart(std::forward<decltype(btn)>(btn)); };
+    m_onHoverEnd = [this](auto &&btn) { onHoverEnd(std::forward<decltype(btn)>(btn)); };
+    m_onClick = [this](auto &&btn) { onClick(std::forward<decltype(btn)>(btn)); };
 }
 
 void IButton::hover(bool isHovered) {

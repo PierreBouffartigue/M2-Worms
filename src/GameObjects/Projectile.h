@@ -6,12 +6,11 @@
 #include "BlackHole.h"
 
 struct ProjectionData {
-    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc, std::vector<BlackHole*>& listOfBH) :
+    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc, std::vector<BlackHole *> &listOfBH) :
             m_pos(pos),
             m_spe(spe),
             m_acc(acc),
-            m_listOfBH(listOfBH)
-    {}
+            m_listOfBH(listOfBH) {}
 
     void update(const float time) {
         float tmpsAccx = m_acc._x;
@@ -44,25 +43,28 @@ private:
     Vector2D m_pos;
     Vector2D m_spe;
     Vector2D m_acc;
-    std::vector<BlackHole*>& m_listOfBH;
+    std::vector<BlackHole *> &m_listOfBH;
 };
 
 class Projectile : public IGameObject {
 public:
-    Projectile(ProjectionData data, const sf::Vector2f &size, const float lifeTime);
+    Projectile(ProjectionData data, const sf::Vector2f &size, float lifeTime);
 
     ~Projectile() override = default;
 
     void processInput() override;
+
     void update(float deltaTime) override;
-    void render(sf::RenderWindow* window) override;
+
+    void render(sf::RenderWindow *window) override;
 
     sf::RectangleShape getShape();
 
     void setPosition(float x, float y) override;
+
     sf::Vector2<float> getPosition() override;
 
-    void projectileCollision(const float deltaTime, sf::VertexArray &map);
+    void projectileCollision(float deltaTime, sf::VertexArray &map);
 
     bool getIsDeleted() const;
 

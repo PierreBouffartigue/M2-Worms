@@ -12,7 +12,7 @@ public:
 
     ~Utils() = default;
 
-    static int getRandomNumber(const int minNumber, const int maxNumber);
+    static int getRandomNumber(int minNumber, int maxNumber);
 
     static void saveGame(const sf::VertexArray &pixels, Player &firstPlayer, Player &secondPlayer);
 

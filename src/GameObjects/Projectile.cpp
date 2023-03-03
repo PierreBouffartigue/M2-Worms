@@ -1,6 +1,9 @@
 #include "Projectile.h"
 
-Projectile::Projectile(ProjectionData data, const sf::Vector2f &size, const float lifeTime = 3.0f) : m_projData(data), m_shape(size), m_lifeTime(lifeTime) {
+Projectile::Projectile(ProjectionData data, const sf::Vector2f &size, const float lifeTime = 3.0f) : m_projData(data),
+                                                                                                     m_shape(size),
+                                                                                                     m_lifeTime(
+                                                                                                             lifeTime) {
     m_shape.setPosition(sf::Vector2f(data.getPosition()._x, data.getPosition()._y));
     m_shape.setFillColor(sf::Color::Red);
 }
@@ -16,7 +19,7 @@ void Projectile::processInput() {
 void Projectile::update(float deltaTime) {
     m_lifeTime -= deltaTime;
     if (m_lifeTime < 0) {
-        m_isDeleted= true;
+        m_isDeleted = true;
     }
 
     m_projData.update(deltaTime);
@@ -72,7 +75,7 @@ void Projectile::projectileCollision(const float deltaTime, sf::VertexArray &map
             float distance = std::hypotf(m_shape.getPosition().x - vertex.position.x,
                                          m_shape.getPosition().y - vertex.position.y);
             if (distance < 10.f) {
-                m_isDeleted= true;
+                m_isDeleted = true;
                 //map[i].color = sf::Color::Transparent;
                 //map[i].position = sf::Vector2f(-10000.f, -10000.f);
             }

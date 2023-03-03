@@ -8,7 +8,7 @@ class IGame {
     static_assert(std::is_enum<SceneNameEnum>::value, "SceneNameEnum must be enum");
 
 public:
-    explicit IGame(const int& width, const int& height, const std::string& title) : m_width(width), m_height(height) {
+    explicit IGame(const int &width, const int &height, const std::string &title) : m_width(width), m_height(height) {
         m_window.create(sf::VideoMode(m_width, m_height), title);
         m_window.setFramerateLimit(60);
     }
@@ -29,7 +29,7 @@ public:
         }
     }
 
-    sf::RenderWindow* getWindow() { return &m_window; }
+    sf::RenderWindow *getWindow() { return &m_window; }
 
     void closeGame() { m_window.close(); }
 
@@ -43,7 +43,7 @@ protected:
         m_currentScene->processInput();
     }
 
-    void update(const float& deltaTime) {
+    void update(const float &deltaTime) {
         if (nullptr == m_currentScene)
             return;
 
@@ -63,7 +63,7 @@ protected:
     const int m_width;
     const int m_height;
 
-    float m_deltaTime;
+    float m_deltaTime{};
 
     SceneType m_currentScene;
 };

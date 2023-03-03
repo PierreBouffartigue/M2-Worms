@@ -9,17 +9,21 @@
 
 class MainMenuScene : public IScene<Game>, public MouseEvents {
 public:
-    explicit MainMenuScene(Game& game);
+    explicit MainMenuScene(Game &game);
+
     ~MainMenuScene() override;
 
     void loadAssets();
+
     void processInput() override;
+
     void update(float deltaTime) override;
+
     void render() override;
 
-    void addButton(const sf::String &Text, const IButton::EventType& OnClick, sf::Vector2f position);
+    void addButton(const sf::String &Text, const IButton::EventType &OnClick, sf::Vector2f position);
 
 private:
-    sf::Font* m_font;
-    std::vector<IButton*> m_buttons;
+    sf::Font *m_font{};
+    std::vector<IButton *> m_buttons;
 };

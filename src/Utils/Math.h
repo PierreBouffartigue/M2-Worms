@@ -34,6 +34,7 @@ struct Vector2D {
         _x /= norm;
         _y /= norm;
     }
+
     float _x;
     float _y;
 };

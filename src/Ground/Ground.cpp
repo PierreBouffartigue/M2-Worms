@@ -2,7 +2,7 @@
 
 Ground::Ground() : m_destroyRadius(10.0f) {}
 
-void Ground::regenerate(sf::RenderWindow* window) {
+void Ground::regenerate(sf::RenderWindow *window) {
     if (isFlatModEnable) {
         curve_ = Curve(1, 10.f);
     } else {
@@ -18,8 +18,6 @@ void Ground::regenerate(sf::RenderWindow* window) {
         float y = 0;
         for (int i = 0; i < curve_.getNumCurves(); i++) {
             float frequency = static_cast<float>(i + 1) * 0.5f;
-            //y += static_cast<float>(curve_.getCurveHeights() *
-            //                        sin(2 * M_PI * frequency * x / windowSize.x));
             y += static_cast<float>(curve_.getCurveHeights() *
                                     sin(2 * 3.14159265358979323846 * frequency * x / windowSize.x));
         }
@@ -40,7 +38,7 @@ void Ground::regenerate(sf::RenderWindow* window) {
     }
 }
 
-void Ground::processInput(sf::RenderWindow* window) {
+void Ground::processInput(sf::RenderWindow *window) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
         regenerate(window);
     } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
@@ -49,11 +47,11 @@ void Ground::processInput(sf::RenderWindow* window) {
     }
 }
 
-void Ground::update(sf::RenderWindow* window) {
+void Ground::update(sf::RenderWindow *window) {
     m_curve = curve_.generate(static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y));
 }
 
-void Ground::render(sf::RenderWindow* window) {
+void Ground::render(sf::RenderWindow *window) {
     window->draw(m_curve);
     window->draw(m_groundPixels);
 }
