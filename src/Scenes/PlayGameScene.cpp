@@ -44,14 +44,14 @@ void PlayGameScene::loadAssets() {
 void PlayGameScene::processInput() {
     sf::Event event{};
     auto mouseCoords = m_game.getWindow()->mapPixelToCoords(sf::Mouse::getPosition(*m_game.getWindow()));
-
+    handleOnMouseLeftClick(mouseCoords, m_ground->getGroundPixels());
     while (m_game.getWindow()->pollEvent(event)) {
         if (sf::Event::Closed == event.type) {
             m_game.closeGame();
             continue;
         }
 
-        //handleOnMouseRightClick(event, mouseCoords, *m_ground);
+
         m_ground->processInput(m_game.getWindow());
 
         if (isFirstPlayerTurn) {

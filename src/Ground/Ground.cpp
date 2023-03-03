@@ -51,7 +51,7 @@ void Ground::render(sf::RenderWindow *window) {
     window->draw(m_groundPixels);
 }
 
-sf::VertexArray Ground::getGroundPixels() {
+sf::VertexArray& Ground::getGroundPixels() {
     return m_groundPixels;
 }
 

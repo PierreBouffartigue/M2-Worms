@@ -20,7 +20,7 @@ protected:
     void handleOnMouseRightClick(sf::Event& event, sf::Vector2f mousePosition, Player& player);
 
     // Button Ground
-    void handleOnMouseLeftClick(sf::Event& event, sf::Vector2f mousePosition, Ground& ground);
+    void handleOnMouseLeftClick(sf::Vector2f mousePosition, sf::VertexArray& groundPixels);
 
     void setMousePressed(sf::Event& Event);
 };

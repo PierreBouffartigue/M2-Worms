@@ -19,7 +19,7 @@ public:
     void render(sf::RenderWindow *window);
 
 
-    sf::VertexArray getGroundPixels();
+    sf::VertexArray& getGroundPixels();
 
     float getDestroyRadius() const;
 

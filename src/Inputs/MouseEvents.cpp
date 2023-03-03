@@ -42,14 +42,15 @@ void MouseEvents::handleOnMouseRightClick(sf::Event &event, sf::Vector2f mousePo
     }
 }
 
-void MouseEvents::handleOnMouseLeftClick(sf::Event &event, sf::Vector2f mousePosition, Ground &ground) {
-    if (sf::Event::MouseButtonPressed == event.type && sf::Mouse::Button::Left == event.mouseButton.button) {
-        for (int i = 0; i < ground.getGroundPixels().getVertexCount(); i++) {
-            const sf::Vertex &vertex = ground.getGroundPixels()[i];
+void MouseEvents::handleOnMouseLeftClick(sf::Vector2f mousePosition, sf::VertexArray& groundPixels) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        for (int i = 0; i < groundPixels.getVertexCount(); i++) {
+            const sf::Vertex &vertex = groundPixels[i];
             const float distance = std::hypotf(static_cast<float>(mousePosition.x) - vertex.position.x,
                                                static_cast<float>(mousePosition.y) - vertex.position.y);
-            if (distance < ground.getDestroyRadius()) {
-                ground.destroyGroundPixel(vertex);
+            if (distance < 10.f) {
+                groundPixels[i].color = sf::Color::Transparent;
+                groundPixels[i].position = sf::Vector2f(-10000.f, -10000.f);
             }
         }
     }
