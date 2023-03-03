@@ -35,8 +35,13 @@ void Player::update(float deltaTime, const sf::VertexArray &map, sf::RenderWindo
     playerCollision(deltaTime, map, window);
 
     for (auto &i: m_listOfProjectile) {
-        if (i != nullptr)
-            i->update(deltaTime);
+        if (i != nullptr) {
+            if(!i->getIsDeleted()){
+                i->update(deltaTime);
+            } else{
+                removeProjectile(i);
+            }
+        }
     }
 }
 
@@ -133,4 +138,10 @@ const std::vector<Projectile *> &Player::getListOfProjectile() const {
 
 void Player::addProjectileInList(Projectile* projectile) {
     m_listOfProjectile.push_back(projectile);
+}
+
+void Player::removeProjectile(Projectile *projectile) {
+    m_listOfProjectile.erase(std::remove_if(m_listOfProjectile.begin(), m_listOfProjectile.end(),
+                                            [projectile](Projectile *p) { return p == projectile; }),
+                             m_listOfProjectile.end());
 }

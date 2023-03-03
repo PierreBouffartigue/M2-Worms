@@ -35,7 +35,7 @@ private:
 
 class Projectile : public IGameObject {
 public:
-    Projectile(ProjectionData data, const sf::Vector2f size, const float lifeTime);
+    Projectile(ProjectionData data, const sf::Vector2f &size, const float lifeTime);
 
     ~Projectile() override = default;
 
@@ -50,8 +50,11 @@ public:
 
     void projectileCollision(const float deltaTime, sf::VertexArray &map);
 
+    bool getIsDeleted() const;
+
 private:
     ProjectionData m_projData;
     sf::RectangleShape m_shape;
     float m_lifeTime;
+    bool m_isDeleted = false;
 };

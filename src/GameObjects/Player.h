@@ -31,6 +31,8 @@ public:
     const std::vector<Projectile *> &getListOfProjectile() const;
     void addProjectileInList(Projectile* projectile);
 
+    void removeProjectile(Projectile *projectile);
+
 private:
     sf::Vector2f m_velocity;
     const float m_speed = 100.f;

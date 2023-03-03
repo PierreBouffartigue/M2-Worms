@@ -1,5 +1,6 @@
 #include <iostream>
 #include "PlayGameScene.h"
+#include "../UI/Button.h"
 
 PlayGameScene::PlayGameScene(Game &game) : IScene(game), m_ground(std::make_unique<Ground>()) {
     loadAssets();
@@ -7,7 +8,11 @@ PlayGameScene::PlayGameScene(Game &game) : IScene(game), m_ground(std::make_uniq
     m_background.setTexture(*m_textures.at(PlayGameTextureName::Background));
 
     m_ground->regenerate(m_game.getWindow());
-    m_player = new Player(m_textures.at(PlayGameTextureName::PlayerRed), {0, 0}, {20, 20});
+    m_playerOne = new Player(m_textures.at(PlayGameTextureName::PlayerWorm), {0, 0}, {20, 20});
+    m_playerTwo = new Player(m_textures.at(PlayGameTextureName::PlayerWorm), {100, 0}, {20, 20});
+
+    addButton("Quit", [this](auto && btn) { m_game.closeGame(); }, sf::Vector2f(m_game.getWindow()->getSize().x - 150.f, 30));
+    addButton("End Turn", [this](auto && btn) { changeTurn(); }, sf::Vector2f(m_game.getWindow()->getSize().x - 350.f, 30), 150.f);
 }
 
 PlayGameScene::~PlayGameScene() {
@@ -24,29 +29,48 @@ void PlayGameScene::loadAssets() {
     m_textures.insert({PlayGameTextureName::Background, newTextureBackground});
 
     auto newTexturePlayer = new sf::Texture;
-    newTexturePlayer->loadFromFile("./assets/textures/PlayerRed.png");
-    m_textures.insert({PlayGameTextureName::PlayerRed, newTexturePlayer});
+    newTexturePlayer->loadFromFile("./assets/textures/player.png");
+    m_textures.insert({PlayGameTextureName::PlayerWorm, newTexturePlayer});
 }
 
 void PlayGameScene::processInput() {
     sf::Event event{};
-    while(m_game.getWindow()->pollEvent( event ))
-    {
+    auto mouseCoords = m_game.getWindow()->mapPixelToCoords(sf::Mouse::getPosition(*m_game.getWindow()));
+
+    while(m_game.getWindow()->pollEvent( event )) {
         if (sf::Event::Closed == event.type) {
             m_game.closeGame();
             continue;
         }
-        m_ground->processInput(m_game.getWindow());
-        m_player->processInput();
-        auto mouseCoords = m_game.getWindow()->mapPixelToCoords(sf::Mouse::getPosition(*m_game.getWindow()));
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            Utils::saveGame(m_ground->getGroundPixels(), *m_playerOne, *m_playerTwo);
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::T)) {
+            isFirstPlayerTurn = !isFirstPlayerTurn;
+            std::cout << "Player turn: " + std::to_string(isFirstPlayerTurn + 1) << std::endl;
+        }
+
         //handleOnMouseLeftClick(event, mouseCoords, *m_ground);
-        handleOnMouseLeftClick(event, mouseCoords, *m_player);
+        m_ground->processInput(m_game.getWindow());
+
+        if (isFirstPlayerTurn) {
+            handleOnMouseLeftClick(event, mouseCoords, *m_playerOne);
+            m_playerOne->processInput();
+        }
+        else {
+            handleOnMouseLeftClick(event, mouseCoords, *m_playerTwo);
+            m_playerTwo->processInput();
+        }
+
+        handleOnMouseLeftClick(event, m_buttons);
     }
+    handleOnMouseHover(mouseCoords, m_buttons);
 }
 
 void PlayGameScene::update(float deltaTime) {
     m_ground->update(m_game.getWindow());
-    m_player->update(deltaTime, m_ground->getGroundPixels(), m_game.getWindow());
+    m_playerOne->update(deltaTime, m_ground->getGroundPixels(), m_game.getWindow());
+    m_playerTwo->update(deltaTime, m_ground->getGroundPixels(), m_game.getWindow());
 }
 
 void PlayGameScene::render() {
@@ -55,5 +79,24 @@ void PlayGameScene::render() {
     m_game.getWindow()->draw(m_background);
 
     m_ground->render(m_game.getWindow());
-    m_player->render(m_game.getWindow());
+
+    for (auto &button : m_buttons) {
+        button->render(m_game.getWindow());
+    }
+
+    m_playerOne->render(m_game.getWindow());
+    m_playerTwo->render(m_game.getWindow());
+}
+
+void PlayGameScene::addButton(const sf::String &Text, const IButton::EventType &OnClick, sf::Vector2f position, float width, float height, unsigned int characterSize) {
+    auto newButton = new Button(Text, *m_font, width, height, characterSize);
+    m_buttons.push_back(newButton);
+    newButton->setPosition(position.x, position.y);
+
+    if (nullptr != OnClick)
+        newButton->setOnClick(OnClick);
+}
+
+void PlayGameScene::changeTurn() {
+    isFirstPlayerTurn = !isFirstPlayerTurn;
 }
