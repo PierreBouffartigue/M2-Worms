@@ -37,7 +37,7 @@ public:
         if (m_texture.loadFromFile("assets/textures/1.png")) {
             m_body.setTexture(&m_texture);
 
-            BlackHole* newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 100.0f), 1000.0f);
+            auto* newBH = new BlackHole(sf::Vector2f(50.f, 50.f), Vector2D(300.0f, 100.0f), 1000.0f);
             m_listOfBH.push_back(newBH);
         }
     }

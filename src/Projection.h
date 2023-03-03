@@ -2,6 +2,7 @@
 
 // My Things Start
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include <utility>
 
 struct Vector2D {
@@ -23,18 +24,16 @@ struct Vector2D {
         return *this;
     }
 
-    Vector2D getNormalized()
-    {
-        const float norm = sqrt(_x * _x + _y * _y);
+    Vector2D getNormalized() const {
+        const float norm = std::sqrt(_x * _x + _y * _y);
         const float x = _x / norm;
         const float y = _y / norm;
 
-        return Vector2D(x, y);
+        return Vector2D{x, y};
     }
 
-    void Normalize()
-    {
-        const float norm = sqrt(_x * _x + _y * _y);
+    void Normalize() {
+        const float norm = std::sqrt(_x * _x + _y * _y);
         _x /= norm;
         _y /= norm;
     }
@@ -43,25 +42,21 @@ struct Vector2D {
     float _y;
 };
 
-struct BlackHole
-{
+struct BlackHole {
 public:
-    BlackHole(const sf::Vector2f& size, const Vector2D pos, const float baseGForce = 1.0f) :
-        m_pos(pos),
-        m_gravitationalForce(baseGForce),
-        m_shape(size)
-    {
+    BlackHole(const sf::Vector2f &size, const Vector2D pos, const float baseGForce = 1.0f) :
+            m_pos(pos),
+            m_gravitationalForce(baseGForce),
+            m_shape(size) {
         m_shape.setPosition(sf::Vector2f(pos._x, pos._y));
         m_shape.setFillColor(sf::Color::Black);
     }
 
-    const Vector2D getPos()
-    {
+    Vector2D getPos() {
         return m_pos;
     }
 
-    const float getGravitationalForce()
-    {
+    float getGravitationalForce() const {
         return m_gravitationalForce;
     }
 
@@ -76,24 +71,22 @@ private:
 };
 
 struct ProjectionData {
-    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc, std::vector<BlackHole*>& listOfBH) :
+    ProjectionData(const Vector2D pos, const Vector2D spe, const Vector2D acc, std::vector<BlackHole *> &listOfBH) :
             m_pos(pos),
             m_spe(spe),
             m_acc(acc),
-            m_listOfBH(listOfBH)
-    {}
+            m_listOfBH(listOfBH) {}
 
     void Update(const float time) {
         float tmpsAccx = m_acc._x;
         float tmpsAccy = m_acc._y;
 
-        for (int i = 0; i < m_listOfBH.size(); ++i)
-        {
-            Vector2D vectorG(m_listOfBH.at(i)->getPos()._x - m_pos._x, m_listOfBH.at(i)->getPos()._y - m_pos._y);
+        for (auto &i: m_listOfBH) {
+            Vector2D vectorG(i->getPos()._x - m_pos._x, i->getPos()._y - m_pos._y);
             vectorG.Normalize();
 
-            tmpsAccx += vectorG._x * m_listOfBH.at(i)->getGravitationalForce();
-            tmpsAccy += vectorG._y * m_listOfBH.at(i)->getGravitationalForce();
+            tmpsAccx += vectorG._x * i->getGravitationalForce();
+            tmpsAccy += vectorG._y * i->getGravitationalForce();
         }
 
         const float tmpsSpeedx = tmpsAccx * time + m_spe._x;
@@ -121,7 +114,7 @@ private:
     Vector2D m_pos;
     Vector2D m_spe;
     Vector2D m_acc;
-    std::vector<BlackHole*>& m_listOfBH;
+    std::vector<BlackHole *> &m_listOfBH;
 };
 
 class Projectile {
@@ -129,8 +122,7 @@ public:
     Projectile(ProjectionData data, const sf::Vector2f &size, const float lifeTime = 3.0f) :
             m_projData(data),
             m_shape(size),
-            m_lifeTime(lifeTime)
-    {
+            m_lifeTime(lifeTime) {
         m_shape.setPosition(sf::Vector2f(data.getPosition()._x, data.getPosition()._y));
         m_shape.setFillColor(sf::Color::Red);
     }
@@ -144,7 +136,7 @@ public:
     void UpdateAndMove(const float deltaTime, sf::VertexArray &map) {
         m_lifeTime -= deltaTime;
         if (m_lifeTime < 0) {
-            m_isDeleted= true;
+            m_isDeleted = true;
         }
 
         m_projData.Update(deltaTime);
@@ -188,7 +180,7 @@ public:
                 float distance = std::hypotf(m_shape.getPosition().x - vertex.position.x,
                                              m_shape.getPosition().y - vertex.position.y);
                 if (distance < 10.f) {
-                    m_isDeleted= true;
+                    m_isDeleted = true;
                     //map[i].color = sf::Color::Transparent;
                     //map[i].position = sf::Vector2f(-10000.f, -10000.f);
                 }
@@ -196,7 +188,7 @@ public:
         }
     }
 
-    bool getIsDeleted() const{
+    bool getIsDeleted() const {
         return m_isDeleted;
     }
 
